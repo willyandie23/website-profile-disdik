@@ -24,11 +24,30 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        try {
+            $request->authenticate();
 
-        $request->session()->regenerate();
+            $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+            $user = $request->user();
+
+            $tokenResult = $user->createToken('Personal Access Token');
+            $accessToken = $tokenResult->accessToken;
+
+            // Simpan token di session
+            session(['api_token' => $accessToken]);
+
+            return redirect()
+                ->intended(route('dashboard', absolute: false))
+                ->with('status', 'Welcome back! You have successfully logged in.');
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()
+                ->back()
+                ->withErrors(['email' => 'Invalid credentials'])
+                ->withInput()
+                ->with('status', 'Login failed. Please check your credentials.');
+        }
     }
 
     /**
