@@ -1,0 +1,103 @@
+@extends('backend.layouts.app')
+
+@section('title', 'Buat Link')
+
+@section('content')
+
+    <div class="row">
+        <div class="col-md-6 col-xl-12">
+            <div class="card">
+                <div class="card-body">
+                    <form id="linkForm" method="POST" action="{{ route('link.store') }}">
+                        @csrf
+                        <div class="form-group">
+                            <label for="name">Nama</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="link">Link</label>
+                            <input type="text" class="form-control" id="link" name="link" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@endsection
+
+@push('scripts')
+    <script>
+        const apiUrl = '/api/links';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('linkForm');
+            if (!form) {
+                console.error('Form tidak ditemukan');
+                return;
+            }
+
+            if (!token) {
+                console.error('API token tidak tersedia');
+                alert('Silakan login kembali untuk mendapatkan token');
+                return;
+            }
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+
+                // Send the data via fetch to the API
+                fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(data) // Ensure the data is sent as JSON
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => {
+                                throw new Error(err.message || 'Network response was not ok');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('API Response:', data);
+                        if (data.message === 'Links created successfully') {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Link Berhasil Dibuat',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/link';
+                            });
+                        } else {
+                            throw new Error('Response tidak valid');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error creating Links:', error);
+                        if(error.message == 'Row limit exceeded') {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Hanya Bisa 5 Link Saja',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            alert('Gagal membuat Link: ' + error.message);
+                        }
+                    });
+            });
+        });
+    </script>
+@endpush
