@@ -41,6 +41,17 @@
                         </div>
 
                         <div class="form-group">
+                            <label>Level (1-8)</label>
+                            <select name="level" class="form-control" required>
+                                @for($i = 1; $i <= 8; $i++)
+                                    <option value="{{ $i }}" {{ old('level', $organizations->level) == $i ? 'selected' : '' }}>
+                                        Level {{ $i }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <label for="image">Ubah Gambar Anggota (opsional)</label>
                             <input
                                 type="file"

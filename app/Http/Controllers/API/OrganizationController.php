@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Storage;
  *     @OA\Property(property="updated_at", type="string", format="date-time"),
  *     @OA\Property(property="image", type="string", example="dummy.jpg"),
  *     @OA\Property(property="field_id", type="string", example="Bagian Sekretariat")
+ *     @OA\Property(property="level", type="integer", example=1)
  * )
  */
 class OrganizationController extends Controller
@@ -84,6 +85,7 @@ class OrganizationController extends Controller
      *             @OA\Property(property="NIP", type="string"),
      *             @OA\Property(property="field_id", type="integer"),
      *             @OA\Property(property="image", type="string"),
+     *             @OA\Property(property="level", type="integer"),
      *         )
      *     ),
      *     @OA\Response(
@@ -100,6 +102,7 @@ class OrganizationController extends Controller
      *                @OA\Property(property="NIP", type="string", example="11111111 123456 1 123"),
      *                @OA\Property(property="image", type="string", example="dummy.jpg"),
      *                @OA\Property(property="field_id", type="string", example="Bagian Sekretariat")
+     *                @OA\Property(property="level", type="integer", example=1),
      *             )
      *         )
      *     ),
@@ -145,6 +148,7 @@ class OrganizationController extends Controller
             'NIP' => 'required|string|max:255',
             'field_id' => 'required|exists:fields,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'level' => 'required|integer|between:1,8',
         ]);
 
         try {
@@ -155,7 +159,8 @@ class OrganizationController extends Controller
                 'position' => $request->position,
                 'NIP' => $request->NIP,
                 'field_id' => $request->field_id,
-                'image' => Storage::url($imagePath)
+                'image' => Storage::url($imagePath),
+                'level' => $request->level
             ]);
 
             return response()->json([
@@ -197,7 +202,8 @@ class OrganizationController extends Controller
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="Example Field")
      *             ),
-     *             @OA\Property(property="image", type="string", example="Example Image")
+     *             @OA\Property(property="image", type="string", example="Example Image"),
+     *             @OA\Property(property="level", type="integer", example=1)
      *         )
      *     ),
      *     @OA\Response(
@@ -255,6 +261,7 @@ class OrganizationController extends Controller
      *             @OA\Property(property="NIP", type="string"),
      *             @OA\Property(property="field_id", type="integer"),
      *             @OA\Property(property="image", type="string"),
+     *             @OA\Property(property="level", type="integer"),
      *         )
      *     ),
      *     @OA\Response(
@@ -275,7 +282,8 @@ class OrganizationController extends Controller
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="Example Field")
      *             ),
-     *             @OA\Property(property="image", type="string", example="Example Image")
+     *             @OA\Property(property="image", type="string", example="Example Image"),
+     *             @OA\Property(property="level", type="integer", example=1)
      *             )
      *         )
      *     ),
@@ -320,7 +328,8 @@ class OrganizationController extends Controller
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:255',
             'NIP' => 'required|string|max:255',
-            'field_id' => 'required|exists:fields,id'
+            'field_id' => 'required|exists:fields,id',
+            'level' => 'required|integer|between:1,8'
         ]);
 
         $organizations = Organization::find($id);
@@ -344,6 +353,7 @@ class OrganizationController extends Controller
                 'position' => $request->position,
                 'NIP' => $request->NIP,
                 'field_id' => $request->field_id,
+                'level' => $request->level
             ]);
 
             return response()->json([

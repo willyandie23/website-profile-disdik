@@ -78,6 +78,12 @@
                         }
                     },
                     {
+                        data: 'level',
+                        render: function(data) {
+                            return data ? `Level ${data}` : 'Tidak Ada Level';
+                        }
+                    },
+                    {
                         data: 'image',
                         render: function(data) {
                             return data ? `<img src="${data}" width="100">` : 'Tidak Ada Gambar';

@@ -11,7 +11,7 @@ class Organization extends Model
 {
     use ModelLog, SoftDeletes, HasFactory;
 
-    protected $fillable = ['name', 'position', 'NIP', 'image', 'field_id'];
+    protected $fillable = ['name', 'position', 'NIP', 'image', 'field_id', 'level'];
 
     public function field()
     {

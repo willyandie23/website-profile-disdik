@@ -33,6 +33,16 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label>Level (1-8)</label>
+                            <select name="level" class="form-control" required>
+                                @for($i = 1; $i <= 8; $i++)
+                                    <option value="{{ $i }}" {{ old('level', 1) == $i ? 'selected' : '' }}>
+                                        Level {{ $i }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="image">Gambar Anggota</label>
                             <input type="file" name="image" id="image" class="form-control" required>
                             <p class="text-danger">* Ukuran maksimal file upload hanya 5MB dengan dimensi 2800x2800</p>

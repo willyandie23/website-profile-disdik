@@ -29,11 +29,16 @@
             flex-wrap: wrap;
         }
 
-        .description {
+        .description.ck-content p {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
             text-align: justify;
-            overflow: visible;
-            white-space: normal;
         }
+        
+        .ck-content p { margin: 1em 0; }
+        .ck-content ul, .ck-content ol { padding-left: 40px; }
+        .ck-content h1, .ck-content h2, .ck-content h3 { font-weight: bold; margin: 1.5em 0 1em; }
 
         .team-item {
             margin-bottom: 20px;
@@ -128,7 +133,9 @@
     <div class="container main-content">
         <h2>{{ $field->name }}</h2>
         <hr>
-        <p class="description">{{ $field->description }}</p>
+        <div class="description ck-content">
+            {!! $field->description !!}
+        </div>
 
         <div class="container-fluid team">
             <div class="container">
