@@ -33,13 +33,14 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Level (1-8)</label>
-                            <select name="level" class="form-control" required>
-                                @for($i = 1; $i <= 8; $i++)
-                                    <option value="{{ $i }}" {{ old('level', 1) == $i ? 'selected' : '' }}>
-                                        Level {{ $i }}
-                                    </option>
-                                @endfor
+                            <label>Level (1-5)</label>
+                            <select name="level" id="level" class="form-control select2" required style="width: 100%;">
+                                <option value="">-- Pilih Level --</option>
+                                <option value="1" data-subtitle="Kepala Dinas">Level 1 - Kepala Dinas</option>
+                                <option value="2" data-subtitle="Sekretaris Dinas">Level 2 - Sekretaris Dinas</option>
+                                <option value="3" data-subtitle="Kepala Bidang">Level 3 - Kepala Bidang</option>
+                                <option value="4" data-subtitle="Kassubag / Kasi / JFT">Level 4 - Kassubag/Kasi/JFT</option>
+                                <option value="5" data-subtitle="Koordinator Wilayah">Level 5 - Koordinator Wilayah</option>
                             </select>
                         </div>
                         <div class="form-group">

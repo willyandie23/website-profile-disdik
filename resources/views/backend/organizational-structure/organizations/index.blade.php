@@ -18,6 +18,7 @@
                                 <th>Posisi</th>
                                 <th>Kategori</th>
                                 <th>Bidang</th>
+                                <th>Level</th>
                                 <th>Gambar</th>
                                 <th>Aksi</th>
                             </tr>

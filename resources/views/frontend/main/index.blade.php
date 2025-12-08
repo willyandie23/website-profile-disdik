@@ -5,8 +5,10 @@
         .video-container {
             width: 100%;
             max-width: 100%;
-            height: 500px; /* Set your desired height */
+            height: 500px;
+            /* Set your desired height */
         }
+
         .video-container iframe {
             width: 100%;
             height: 100%;
@@ -47,23 +49,26 @@
 @endpush
 
 @section('content')
-
     <!-- Banner Section Start -->
     <div class="carousel-header">
         <div id="carouselId" class="carousel slide" data-bs-ride="carousel">
             <ol class="carousel-indicators">
-                @foreach($banners as $key => $banner)
-                    <li data-bs-target="#carouselId" data-bs-slide-to="{{ $key }}" class="{{ $key == 0 ? 'active' : '' }}"></li>
+                @foreach ($banners as $key => $banner)
+                    <li data-bs-target="#carouselId" data-bs-slide-to="{{ $key }}"
+                        class="{{ $key == 0 ? 'active' : '' }}"></li>
                 @endforeach
             </ol>
             <div class="carousel-inner" role="listbox">
-                @foreach($banners as $key => $banner)
+                @foreach ($banners as $key => $banner)
                     <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
                         <img src="{{ $banner->image }}" class="img-fluid w-100" alt="{{ $banner->title }}">
                         <div class="carousel-caption">
                             <div class="carousel-caption-content" style="max-width: 1000px;">
-                                <h1 class="display-2 text-capitalize text-white mb-4 fadeInLeft animated" data-animation="fadeInLeft" data-delay="1.3s" style="animation-delay: 1.3s;">{{ $banner->title }}</h1>
-                                <p class="mb-5 fs-5 text-white fadeInLeft animated" data-animation="fadeInLeft" data-delay="1.5s" style="animation-delay: 1.5s;">{{ $banner->description }}</p>
+                                <h1 class="display-2 text-capitalize text-white mb-4 fadeInLeft animated"
+                                    data-animation="fadeInLeft" data-delay="1.3s" style="animation-delay: 1.3s;">
+                                    {{ $banner->title }}</h1>
+                                <p class="mb-5 fs-5 text-white fadeInLeft animated" data-animation="fadeInLeft"
+                                    data-delay="1.5s" style="animation-delay: 1.5s;">{{ $banner->description }}</p>
                             </div>
                         </div>
                     </div>
@@ -95,12 +100,14 @@
                         <h2 class="section-title text-uppercase text-black mt-5">Berita Dinas Pendidikan</h2>
                     </div>
                     <div class="row g-4 justify-content-center">
-                        @foreach($latestNews as $news)
+                        @foreach ($latestNews as $news)
                             <div class="col-md-12 wow fadeInUp" data-wow-delay="0.2s">
                                 <div class="blog-item">
                                     <div class="blog-img">
-                                        <img src="{{ $news->image }}" class="img-fluid rounded-top w-100" alt="{{ $news->title }}" style="object-fit: cover; height: 300px;">
-                                        <div class="blog-date px-4 py-2"><i class="fa fa-calendar-alt me-1"></i> {{ $news->created_at->format('M d, Y') }}</div>
+                                        <img src="{{ $news->image }}" class="img-fluid rounded-top w-100"
+                                            alt="{{ $news->title }}" style="object-fit: cover; height: 300px;">
+                                        <div class="blog-date px-4 py-2"><i class="fa fa-calendar-alt me-1"></i>
+                                            {{ $news->created_at->format('M d, Y') }}</div>
                                     </div>
                                     <div class="blog-content rounded-bottom p-4">
                                         <a href="#" class="h5 d-inline-block mb-3 fw-bold">
@@ -111,8 +118,8 @@
                                             {!! \Str::limit(html_entity_decode(strip_tags($news->description)), 150, '...') !!}
 
                                             @if (strip_tags($news->description) !== \Str::limit(html_entity_decode(strip_tags($news->description)), 150, ''))
-                                                <a href="{{ route('berita.show', $news->slug ?? $news->id) }}" 
-                                                class="fw-bold text-secondary d-inline-block mt-2">
+                                                <a href="{{ route('berita.show', $news->slug ?? $news->id) }}"
+                                                    class="fw-bold text-secondary d-inline-block mt-2">
                                                     Selengkapnya <i class="fa fa-angle-right"></i>
                                                 </a>
                                             @endif
@@ -130,7 +137,7 @@
                         <h2 class="section-title text-uppercase text-black mt-5">Unduh</h2>
                     </div>
                     <ul class="list-group wow fadeInUp" data-wow-delay="0.2s"">
-                        @foreach($latestDownloads as $download)
+                        @foreach ($latestDownloads as $download)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <a href="{{ $download->file_path }}" class="text-decoration-none" download>
                                     <i class="fa fa-file-pdf"></i> {{ $download->file_name }}
@@ -164,14 +171,16 @@
             </div>
             <div class="row">
                 <!-- Galery Section -->
-                @foreach($gallerys as $gallery)
+                @foreach ($gallerys as $gallery)
                     <div class="col-lg-4 col-md-6 mb-4 wow fadeInUp" data-wow-delay="0.2s">
                         <div class="gallery-item position-relative overflow-hidden rounded">
                             <!-- Image -->
-                            <img src="{{ $gallery->image }}" class="img-fluid w-100" alt="{{ $gallery->title }}" style="height: 250px; object-fit: cover;">
-                            
+                            <img src="{{ $gallery->image }}" class="img-fluid w-100" alt="{{ $gallery->title }}"
+                                style="height: 250px; object-fit: cover;">
+
                             <!-- Title Overlay (hidden by default) -->
-                            <div class="gallery-title position-absolute w-100 h-100 d-flex justify-content-center align-items-center text-center" style="top: 0; left: 0; background-color: rgba(0, 0, 0, 0.5); color: white; opacity: 0; transition: opacity 0.3s;">
+                            <div class="gallery-title position-absolute w-100 h-100 d-flex justify-content-center align-items-center text-center"
+                                style="top: 0; left: 0; background-color: rgba(0, 0, 0, 0.5); color: white; opacity: 0; transition: opacity 0.3s;">
                                 <h5>{{ $gallery->title }}</h5>
                             </div>
                         </div>
@@ -180,7 +189,8 @@
             </div>
 
             <div class="text-center pt-4">
-                <a href="{{ route('galeri.index') }}" class="btn btn-primary py-3 px-5 rounded-pill">Lihat Galeri Lainnya</a>
+                <a href="{{ route('galeri.index') }}" class="btn btn-primary py-3 px-5 rounded-pill">Lihat Galeri
+                    Lainnya</a>
             </div>
         </div>
     </div>
@@ -249,7 +259,8 @@
                             <div class="team-item">
                                 <div class="team-inner rounded">
                                     <div class="team-img">
-                                        <img src="{{ $organization->image }}" class="img-fluid rounded-top w-100" alt="Image">
+                                        <img src="{{ $organization->image }}" class="img-fluid rounded-top w-100"
+                                            alt="Image">
                                     </div>
                                     <div class="bg-light rounded-bottom text-center py-4">
                                         <h6 class="mb-3"><strong>{{ $organization->name }}</strong></h6>
@@ -262,13 +273,14 @@
                     @endforeach
                 </div>
 
-                {{-- <div class="row g-4 d-flex flex-row-reverse">
+                <div class="row g-4 d-flex justify-content-end">
                     @foreach ($secretariat as $organization)
                         <div class="col-md-4 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.2s">
                             <div class="team-item">
                                 <div class="team-inner rounded">
                                     <div class="team-img">
-                                        <img src="{{ $organization->image }}" class="img-fluid rounded-top w-100" alt="Image">
+                                        <img src="{{ $organization->image }}" class="img-fluid rounded-top w-100"
+                                            alt="Image">
                                     </div>
                                     <div class="bg-light rounded-bottom text-center py-4">
                                         <h6 class="mb-3"><strong>{{ $organization->name }}</strong></h6>
@@ -279,15 +291,16 @@
                             </div>
                         </div>
                     @endforeach
-                </div> --}}
+                </div>
 
                 <div class="row g-4">
-                    <div class="col-md-3 col-lg-3 col-xl-3">
-                        @foreach ($cultural_department as $organization)
+                    @foreach ($division as $organization)
+                        <div class="col-md-3 col-lg-3 col-xl-3">
                             <div class="team-item">
                                 <div class="team-inner rounded">
                                     <div class="team-img">
-                                        <img src="{{ $organization->image }}" class="img-fluid rounded-top w-100" alt="Image">
+                                        <img src="{{ $organization->image }}" class="img-fluid rounded-top w-100"
+                                            alt="Image">
                                     </div>
                                     <div class="bg-light rounded-bottom text-center py-4">
                                         <h6 class="mb-3"><strong>{{ $organization->name }}</strong></h6>
@@ -296,10 +309,11 @@
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
+                </div>
 
-                    <div class="col-md-3 col-lg-3 col-xl-3">
+                {{-- <div class="col-md-3 col-lg-3 col-xl-3">
                         @foreach ($tourism_department as $organization)
                             <div class="d-flex">
                                 <div class="team-item">
@@ -316,9 +330,9 @@
                                 </div>
                             </div>
                         @endforeach
-                    </div>
+                    </div> --}}
 
-                    <div class="col-md-3 col-lg-3 col-xl-3">
+                {{-- <div class="col-md-3 col-lg-3 col-xl-3">
                         @foreach ($youth_department as $organization)
                             <div class="team-item">
                                 <div class="team-inner rounded">
@@ -333,9 +347,9 @@
                                 </div>
                             </div>
                         @endforeach
-                    </div>
+                    </div> --}}
 
-                    <div class="col-md-3 col-lg-3 col-xl-3">
+                {{-- <div class="col-md-3 col-lg-3 col-xl-3">
                         @foreach ($sports_department as $organization)
                             <div class="team-item">
                                 <div class="team-inner rounded">
@@ -350,15 +364,15 @@
                                 </div>
                             </div>
                         @endforeach
-                    </div>
+                    </div> --}}
 
-                    <div class="text-center pt-4">
-                        <a href="{{ route('organisasi.index') }}" class="btn btn-primary py-3 px-5 rounded-pill">Lihat Struktur Lainnya</a>
-                    </div>
+                <div class="text-center pt-4">
+                    <a href="{{ route('organisasi.index') }}" class="btn btn-primary py-3 px-5 rounded-pill">Lihat
+                        Struktur Lainnya</a>
                 </div>
             </div>
         </div>
     </div>
+    </div>
     <!-- Organization Structure End -->
-
 @endsection

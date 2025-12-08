@@ -77,27 +77,7 @@
         <h2>Sambutan Kepala Dinas</h2>
         <hr>
         <div class="description">
-            <p>
-                Puji Syukur kami panjatkan kehadirat Tuhan Y.M.E atas Rahmat dan KaruniaNya sehingga website 
-                Dinas Kebudayaan, Kepemudaan dan Olahraga serta Pariwisata Kabupaten Katingan telah selesai 
-                dikerjakan dan kita dapat berkomunikasi melalui media ini. Adapun tujuan pembuatan website ini 
-                adalah sebagai media informasi dan komunikasi yang menyajikan gambaran umum tentang Dinas Kebudayaan, 
-                Kepemudaan dan Olahraga serta Pariwisata Kabupaten Katingan. Kami menyadari masih banyak kekurangan yang 
-                terdapat dalam website ini, oleh karena itu kami mengharapkan masukan-masukan yang membangun untuk kesempurnaan 
-                website ini.
-            </p>
-            <br>
-            <p>
-                Kepada semua pihak yang telah banyak membantu dan berpartisipasi sehingga website ini dapat dipublikasikan, 
-                dengan ini kami menyampaikan ucapan terima kasih dan penghargaan yang sebesar-besarnya.
-            </p>
-            <br>
-            <p>
-                Kasongan, Juni 2025
-            </p>
-            <p>
-                Kepala Disbudporapar Kabupaten Katingan,
-            </p>
+            {!! $greeting->description !!}
         </div>
         <div class="container-fluid team">
             <div class="container">

@@ -41,13 +41,40 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Level (1-8)</label>
-                            <select name="level" class="form-control" required>
-                                @for($i = 1; $i <= 8; $i++)
-                                    <option value="{{ $i }}" {{ old('level', $organizations->level) == $i ? 'selected' : '' }}>
-                                        Level {{ $i }}
-                                    </option>
-                                @endfor
+                            <label for="level">Level Jabatan <small class="text-muted">(Pilih sesuai struktur)</small></label>
+                            
+                            <select name="level" id="level" class="form-control select2" required style="width: 100%;">
+                                <option value="">-- Pilih Level --</option>
+                                
+                                <option value="1" 
+                                    data-subtitle="Kepala Dinas" 
+                                    {{ old('level', $organizations->level) == 1 ? 'selected' : '' }}>
+                                    Level 1 - Kepala Dinas
+                                </option>
+                                
+                                <option value="2" 
+                                    data-subtitle="Sekretaris Dinas" 
+                                    {{ old('level', $organizations->level) == 2 ? 'selected' : '' }}>
+                                    Level 2 - Sekretaris Dinas
+                                </option>
+                                
+                                <option value="3" 
+                                    data-subtitle="Kepala Bidang" 
+                                    {{ old('level', $organizations->level) == 3 ? 'selected' : '' }}>
+                                    Level 3 - Kepala Bidang
+                                </option>
+                                
+                                <option value="4" 
+                                    data-subtitle="Kassubag / Kasi / JFT" 
+                                    {{ old('level', $organizations->level) == 4 ? 'selected' : '' }}>
+                                    Level 4 - Kassubag/Kasi/JFT
+                                </option>
+                                
+                                <option value="5" 
+                                    data-subtitle="Koordinator Wilayah" 
+                                    {{ old('level', $organizations->level) == 5 ? 'selected' : '' }}>
+                                    Level 5 - Koordinator Wilayah
+                                </option>
                             </select>
                         </div>
 

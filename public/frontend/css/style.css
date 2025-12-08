@@ -648,7 +648,7 @@ html, body {
 .counter {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(rgba(25, 64, 154, 0.9), rgba(25, 64, 154, 1)), url(../image/fact-bg.jpg);
+    background: linear-gradient(rgba(25, 64, 154, 0.9), rgba(25, 64, 154, 1)), url(../image/fact-bg-2.jpg);
     background-position: center top;
     background-repeat: no-repeat;
     background-size: cover;

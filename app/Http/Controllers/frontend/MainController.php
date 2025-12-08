@@ -28,31 +28,11 @@ class MainController extends Controller
 
         // Mengelompokkan organisasi berdasarkan posisi mereka
         $organizations = Organization::with('field')->get();
-        $head_of_department = $organizations->whereIn('position',
-            [
-                'Kepala Dinas', 
-                'KEPALA DINAS', 
-                'Plt. Kepala Dinas', 
-                'Plt. KEPALA DINAS'
-            ]
-        );
-        $secretariat = $organizations->whereIn('position', 
-            [
-                'Plt. SEKRETARIS',
-                'SEKRETARIS',
-                'Plt. Sekretaris',
-                'Sekretaris'
-            ]
-        );
-
-        // Mengelompokkan berdasarkan bidang
-        $cultural_department = $organizations->where('position', 'KEPALA BIDANG PEMBINAAN PAUD DAN PNF');
-        $tourism_department = $organizations->where('position', 'KEPALA BIDANG PEMBINAAN SEKOLAH DASAR');
-        $youth_department = $organizations->where('position', 'KEPALA BIDANG PEMBINAAN SMP');
-        $sports_department = $organizations->where('position', 'KEPALA BIDANG PEMBINAAN KETENAGAAN');
+        $head_of_department = $organizations->where('level', 1);
+        $secretariat = $organizations->where('level', 2);
+        $division = $organizations->where('level', 3);
         
-        $youtube_video = Identity::where('key', 'site_ytb')->first();
-        
+        $youtube_video = Identity::where('key', 'site_ytb')->first(); 
         $youtube_value = $youtube_video->value;
 
         $links = Link::all();
@@ -70,10 +50,7 @@ class MainController extends Controller
             'fieldCount' => $fieldCount,
             'head_of_department' => $head_of_department,
             'secretariat' => $secretariat,
-            'cultural_department' => $cultural_department,
-            'tourism_department' => $tourism_department,
-            'youth_department' => $youth_department,
-            'sports_department' => $sports_department,
+            'division' => $division,
             'youtube_value' => $youtube_value,
             'links' => $links,
         ]);
