@@ -14,6 +14,7 @@ use App\Http\Controllers\Backend\AppLogController;
 use App\Http\Controllers\API\OrganizationController;
 use App\Http\Controllers\Backend\ContactController as BackendContactController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\JenisCutiController;
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\DownloadController as FrontendDownloadController;
 use App\Http\Controllers\Frontend\FieldController as FrontendFieldController;
@@ -44,7 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware('auth', 'role:admin|superadmin')->group(function() {
+Route::middleware('auth', 'role:admin|superadmin')->group(function () {
     Route::get('/banner', [BannerController::class, 'bannerShow'])->name('banner.index');
     Route::get('/banner/create', [BannerController::class, 'create'])->name('banner.create');
     Route::get('/banner/{slider}/edit', [BannerController::class, 'edit'])->name('banner.edit');
@@ -54,17 +55,17 @@ Route::middleware('auth', 'role:admin|superadmin')->group(function() {
     Route::get('/organizational-structure/organizations/create', [OrganizationController::class, 'create'])->name('organizations.create');
     Route::get('/organizational-structure/organizations/{organizations}/edit', [OrganizationController::class, 'edit'])->name('organizations.edit');
     Route::post('/organizational-structure/organizations', [OrganizationController::class, 'store'])->name('organizations.store');
-    
+
     Route::get('/organizational-structure/fields', [FieldController::class, 'fieldShow'])->name('field.index');
     Route::get('/organizational-structure/fields/create', [FieldController::class, 'create'])->name('field.create');
     Route::get('/organizational-structure/fields/{field}/edit', [FieldController::class, 'edit'])->name('field.edit');
     Route::post('/organizational-structure/fields', [FieldController::class, 'store'])->name('field.store');
-    
+
     Route::get('/galery', [GaleryController::class, 'galleryShow'])->name('gallery.index');
     Route::get('/galery/create', [GaleryController::class, 'create'])->name('gallery.create');
     Route::get('/galery/{galery}/edit', [GaleryController::class, 'edit'])->name('gallery.edit');
     Route::post('/galery', [GaleryController::class, 'store'])->name('gallery.store');
-    
+
     Route::get('/news', [NewsController::class, 'newsShow'])->name('news.index');
     Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
     Route::get('/news/{news}/edit', [NewsController::class, 'edit'])->name('news.edit');
@@ -89,6 +90,10 @@ Route::middleware('auth', 'role:admin|superadmin')->group(function() {
     Route::get('/link/create', [LinkController::class, 'create'])->name('link.create');
     Route::get('/link/{link}/edit', [LinkController::class, 'edit'])->name('link.edit');
     Route::post('/link', [LinkController::class, 'store'])->name('link.store');
+
+    Route::get('/jenis-cuti', [JenisCutiController::class, 'index'])->name('jenis-cuti.index');
+    Route::get('/jenis-cuti/create', [JenisCutiController::class, 'create'])->name('jenis-cuti.create');
+    Route::get('/jenis-cuti/{jenis}/edit', [JenisCutiController::class, 'edit'])->name('jenis-cuti.edit');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

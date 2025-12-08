@@ -2,16 +2,18 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\LinkController;
 use App\Http\Controllers\API\NewsController;
+use App\Http\Controllers\API\FieldController;
 use App\Http\Controllers\API\AppLogController;
 use App\Http\Controllers\API\BannerController;
 use App\Http\Controllers\API\GaleryController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\DownloadController;
-use App\Http\Controllers\API\FieldController;
 use App\Http\Controllers\API\IdentityController;
-use App\Http\Controllers\API\LinkController;
+use App\Http\Controllers\API\JenisCutiController;
 use App\Http\Controllers\API\OrganizationController;
+use App\Http\Controllers\API\PengajuanCutiController;
 use App\Http\Controllers\Frontend\DownloadController as FrontendDownloadController;
 
 Route::get('/user', function (Request $request) {
@@ -32,6 +34,12 @@ Route::get('/identities', [IdentityController::class, 'index']);
 Route::get('/fields', [FieldController::class, 'index']);
 Route::get('/links', [LinkController::class, 'index']);
 
+Route::get('/jenis-cuti', [JenisCutiController::class, 'index']);
+Route::get('/pengajuan-cuti', [PengajuanCutiController::class, 'index']);        // GET    api/pengajuan-cuti
+Route::get('/pengajuan-cuti/{id}', [PengajuanCutiController::class, 'show']);    // GET    api/pengajuan-cuti/1
+Route::post('/pengajuan-cuti', [PengajuanCutiController::class, 'store']);       // POST   api/pengajuan-cuti
+
+
 Route::middleware('auth:api')->group(function () {
     Route::post('/banner', [BannerController::class, 'store']);
     Route::get('/banner/{id}', [BannerController::class, 'show']);
@@ -42,17 +50,17 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/organizations/{id}', [OrganizationController::class, 'show']);
     Route::put('/organizations/{id}', [OrganizationController::class, 'update']);
     Route::delete('/organizations/{id}', [OrganizationController::class, 'destroy']);
-    
+
     Route::post('/galery', [GaleryController::class, 'store']);
     Route::get('/galery/{id}', [GaleryController::class, 'show']);
     Route::put('/galery/{id}', [GaleryController::class, 'update']);
     Route::delete('/galery/{id}', [GaleryController::class, 'destroy']);
-    
+
     Route::post('/news', [NewsController::class, 'store']);
     Route::get('/news/{id}', [NewsController::class, 'show']);
     Route::put('/news/{id}', [NewsController::class, 'update']);
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
-    
+
     Route::post('/downloads', [DownloadController::class, 'store']);
     Route::get('/downloads/{id}', [DownloadController::class, 'show']);
     Route::put('/downloads/{id}', [DownloadController::class, 'update']);
@@ -72,4 +80,15 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/links/{id}', [LinkController::class, 'show']);
     Route::put('/links/{id}', [LinkController::class, 'update']);
     Route::delete('/links/{id}', [LinkController::class, 'destroy']);
+
+    Route::post('/jenis-cuti', [JenisCutiController::class, 'store']);
+    Route::get('/jenis-cuti/{id}', [JenisCutiController::class, 'show']);
+    Route::put('/jenis-cuti/{id}', [JenisCutiController::class, 'update']);
+    Route::delete('/jenis-cuti/{id}', [JenisCutiController::class, 'destroy']);
+
+    Route::post('/pengajuan-cuti/{id}/ajukan', [PengajuanCutiController::class, 'ajukan']);
+    Route::post('/pengajuan-cuti/{id}/terima', [PengajuanCutiController::class, 'terima']);
+    Route::post('/pengajuan-cuti/{id}/tolak', [PengajuanCutiController::class, 'tolak']);
+    Route::put('/pengajuan-cuti/{id}', [PengajuanCutiController::class, 'update']);
+    Route::delete('/pengajuan-cuti/{id}', [PengajuanCutiController::class, 'destroy']);
 });

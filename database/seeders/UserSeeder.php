@@ -15,20 +15,28 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $userSuperAdmin = User::create([
-            'name' => 'superadmin',
-            'email' => 'superadmin@katingankab.go.id',
+        $kassubag = User::create([
+            'name' => 'kassubag',
+            'email' => 'kassubag@katingankab.go.id',
             'password' => Hash::make('12345678'),
             'remember_token' => Str::random(10),
         ]);
-        $userSuperAdmin->assignRole('superadmin');
+        $kassubag->assignRole('kassubag');
 
-        $userAdmin = User::create([
-            'name' => 'admin',
-            'email' => 'admin@katingankab.go.id',
+        $sekdis = User::create([
+            'name' => 'sekdis',
+            'email' => 'sekdis@katingankab.go.id',
             'password' => Hash::make('12345678'),
             'remember_token' => Str::random(10),
         ]);
-        $userAdmin->assignRole('admin');
+        $sekdis->assignRole('sekdis');
+
+        $kadis = User::create([
+            'name' => 'kadis',
+            'email' => 'kadis@katingankab.go.id',
+            'password' => Hash::make('12345678'),
+            'remember_token' => Str::random(10),
+        ]);
+        $kadis->assignRole('kadis');
     }
 }

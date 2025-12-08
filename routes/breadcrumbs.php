@@ -133,3 +133,17 @@ Breadcrumbs::for('link.edit', function (BreadcrumbTrail $trail, $linkId) {
     $trail->parent('link.index');
     $trail->push('Edit Link', route('link.edit', $linkId));
 });
+
+// Jenis Cuti breadcrumbs
+Breadcrumbs::for('jenis-cuti.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push('Daftar jenis-cuti', route('jenis-cuti.index'));
+});
+Breadcrumbs::for('jenis-cuti.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('jenis-cuti.index');
+    $trail->push('Tambah jenis-cuti', route('jenis-cuti.create'));
+});
+Breadcrumbs::for('jenis-cuti.edit', function (BreadcrumbTrail $trail, $jenisCutiId) {
+    $trail->parent('jenis-cuti.index');
+    $trail->push('Edit jenis-cuti', route('jenis-cuti.edit', $jenisCutiId));
+});

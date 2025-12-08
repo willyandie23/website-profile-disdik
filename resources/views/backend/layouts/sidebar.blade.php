@@ -64,10 +64,17 @@
                                 Unduhan
                             </a>
                         </li>
+                        @hasrole('superadmin|admin')
+                            <li class="pc-item">
+                                <a class="pc-link" href="{{ route('jenis-cuti.index') }}">
+                                    Jenis Cuti
+                                </a>
+                            </li>
+                        @endhasrole
                     </ul>
                 </li>
                 <li class="pc-item pc-hasmenu">
-                    <a href="#!" class="pc-link">
+                    <a href="#" class="pc-link">
                         <span class="pc-micon"><i class="ti ti-user"></i></span>
                         <span class="pc-mtext">Struktur Organisasi</span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
@@ -84,12 +91,17 @@
                             </a>
                         </li>
                     </ul>
-                    <li class="pc-item">
-                        <a href="{{ route('contact.index') }}" class="pc-link">
-                            <span class="pc-micon"><i class="ti ti-mailbox"></i></span>
-                            <span class="pc-mtext">Kotak Saran</span>
-                        </a>
-                    </li
+                <li class="pc-item">
+                    <a href="" class="pc-link">
+                        <span class="pc-micon"><i class="ti ti-mailbox"></i></span>
+                        <span class="pc-mtext">Pengajuan Cuti</span>
+                    </a>
+                </li>
+                <li class="pc-item">
+                    <a href="{{ route('contact.index') }}" class="pc-link">
+                        <span class="pc-micon"><i class="ti ti-mailbox"></i></span>
+                        <span class="pc-mtext">Kotak Saran</span>
+                    </a>
                 </li>
                 @hasrole('superadmin')
                     <li class="pc-item pc-caption">
