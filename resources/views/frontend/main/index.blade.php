@@ -90,6 +90,86 @@
     </div>
     <!-- Banner Section End -->
 
+    {{-- TRACKING PENGAJUAN CUTI – UKURAN PAS, SUPER ELEGAN, GLASSY, CANTIK BANGET --}}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+
+                <div class="bg-white bg-opacity-90 backdrop-blur-md rounded-4 shadow-lg p-5 border-0 position-relative overflow-hidden"
+                    style="border-top: 6px solid #5d5fef solid; box-shadow: 0 15px 35px rgba(93, 95, 239, 0.12)!important;">
+
+                    <!-- Garis gradasi halus di atas -->
+                    <div class="position-absolute top-0 start-0 w-100 h-1"
+                        style="background: linear-gradient(90deg, #5d5fef, #a855f7, #ec4899);"></div>
+
+                    <div class="text-center">
+                        <!-- Icon premium -->
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4"
+                            style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <i class="fas fa-search-location text-white" style="font-size: 36px;"></i>
+                        </div>
+
+                        <h4 class="fw-bold text-dark mb-2" style="font-size: 1.8rem; letter-spacing: 0.5px;">
+                            Lacak Pengajuan Cuti
+                        </h4>
+                        <p class="text-muted mb-4" style="font-size: 1.05rem;">
+                            Masukkan kode pengajuan untuk melihat status terkini
+                        </p>
+                    </div>
+
+                    <!-- Form -->
+                    <form action="{{ route('cuti.track') }}" method="GET"
+                        class="row g-3 align-items-center justify-content-center">
+                        <div class="col-12 col-md-8">
+                            <input type="text" name="kode"
+                                class="form-control form-control-lg text-center fw-bold border-2 shadow-sm"
+                                placeholder="CT-2025-000123" required maxlength="20" autocomplete="off"
+                                style="
+                                height: 64px;
+                                font-size: 1.3rem;
+                                letter-spacing: 4px;
+                                text-transform: uppercase;
+                                border-color: #e2e8f0;
+                                border-radius: 16px;
+                                background: #f8faff;
+                            "
+                                oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <button type="submit"
+                                class="btn btn-lg w-100 fw-bold d-flex align-items-center justify-content-center gap-2 shadow text-white"
+                                style="
+            height: 64px;
+            border-radius: 16px;
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            transition: all 0.3s ease;
+        "
+                                onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 25px rgba(102,126,234,0.4)'"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.1)'">
+                                <i class="fas fa-search"></i>
+                                Lacak
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Link ajukan cuti -->
+                    <div class="text-center mt-4 pt-3">
+                        <small class="text-muted d-block mb-2">Belum punya kode pengajuan?</small>
+                        <a href="#" class="btn btn-outline-primary rounded-pill px-5 py-3 fw-bold fs-5 shadow-sm"
+                            data-bs-toggle="modal" data-bs-target="#modalPengajuanCuti">
+                            <i class="fas fa-plus-circle me-2"></i> Ajukan Cuti Sekarang
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {{-- SELESAI – CANTIK, ELEGAN, UKURAN PAS, NYATU SEMPURNA --}}
+
     <!-- News and Download Section Start -->
     <div class="container-fluid blog pb-5">
         <div class="container pb-5">
@@ -375,4 +455,133 @@
     </div>
     </div>
     <!-- Organization Structure End -->
+
+    <div class="modal fade" id="modalPengajuanCuti" tabindex="-1" aria-labelledby="modalPengajuanLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                <!-- Header -->
+                <div class="modal-header border-0 text-white py-4"
+                    style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <h3 class="modal-title fw-bold" id="modalPengajuanLabel">
+                        <i class="fas fa-file-signature me-3"></i> Form Pengajuan Cuti
+                    </h3>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body p-5 bg-light">
+                    <div class="row g-4">
+                        <!-- Data Pemohon -->
+                        <div class="col-12">
+                            <h5 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-user-circle me-2"></i> Data Pemohon
+                            </h5>
+                            <hr class="border-primary">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">NIP</label>
+                            <input type="text" class="form-control form-control-lg" placeholder="18102025xxxxxxx"
+                                disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nama Lengkap</label>
+                            <input type="text" class="form-control form-control-lg" placeholder="Ahmad Fauzi, S.Pd."
+                                disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Pangkat / Golongan</label>
+                            <input type="text" class="form-control form-control-lg" placeholder="Penata Muda / III-a"
+                                disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Jabatan</label>
+                            <input type="text" class="form-control form-control-lg" placeholder="Guru Matematika"
+                                disabled>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Unit Kerja</label>
+                            <input type="text" class="form-control form-control-lg" placeholder="SMP Negeri 1 Jakarta"
+                                disabled>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">No. HP / WA</label>
+                            <input type="text" class="form-control form-control-lg" placeholder="0812-3456-7890">
+                        </div>
+
+                        <!-- Jenis & Periode Cuti -->
+                        <div class="col-12 mt-4">
+                            <h5 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-calendar-check me-2"></i> Jenis & Periode Cuti
+                            </h5>
+                            <hr class="border-primary">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Jenis Cuti</label>
+                            <select class="form-select form-select-lg">
+                                <option value="">Pilih Jenis Cuti...</option>
+                                <option>Cuti Tahunan</option>
+                                <option>Cuti Besar</option>
+                                <option>Cuti Sakit</option>
+                                <option>Cuti Melahirkan</option>
+                                <option>Cuti Alasan Penting</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Tanggal Mulai</label>
+                            <input type="date" class="form-control form-control-lg">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Tanggal Selesai</label>
+                            <input type="date" class="form-control form-control-lg">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Alasan Cuti</label>
+                            <textarea class="form-control" rows="4"
+                                placeholder="Contoh: Menikahkan anak / Istirahat setelah tugas luar daerah..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Alamat Selama Cuti</label>
+                            <input type="text" class="form-control form-control-lg"
+                                placeholder="Jl. Merdeka No.10, Bandung">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Kontak yang Bisa Dihubungi</label>
+                            <input type="text" class="form-control form-control-lg"
+                                placeholder="0812-9999-8888 (keluarga)">
+                        </div>
+
+                        <!-- Lampiran Berkas -->
+                        <div class="col-12 mt-4">
+                            <h5 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-paperclip me-2"></i> Lampiran Berkas Pendukung
+                            </h5>
+                            <hr class="border-primary">
+                            <div class="border-2 border-dashed border-primary rounded-4 p-5 text-center bg-white">
+                                <i class="fas fa-cloud-upload-alt text-primary" style="font-size: 48px;"></i>
+                                <p class="mt-3 mb-2 fw-semibold text-dark">Drag & drop file di sini atau klik untuk upload
+                                </p>
+                                <p class="text-muted small">PDF, JPG, PNG • Maks. 10MB • Maks. 5 file</p>
+                                <button type="button" class="btn btn-outline-primary btn-lg px-5 mt-3 rounded-pill">Pilih
+                                    Berkas</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 bg-white px-5 py-4">
+                    <button type="button" class="btn btn-light btn-lg px-5 rounded-pill shadow-sm"
+                        data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button type="button" class="btn btn-lg px-5 rounded-pill fw-bold text-white shadow"
+                        style="background: linear-gradient(135deg, #667eea, #764ba2); border: none;">
+                        <i class="fas fa-paper-plane me-2"></i> Kirim Pengajuan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

@@ -38,6 +38,9 @@ Route::get('/organisasi', [FrontendOrganizationController::class, 'index'])->nam
 Route::get('/hubungi-kami', [ContactController::class, 'index'])->name('hubungi.index');
 Route::post('/hubungi-kami', [ContactController::class, 'store'])->name('hubungi.store');
 
+Route::get('/cuti/track', [CutiController::class, 'track'])->name('cuti.track');
+Route::get('/cuti/create', [CutiController::class, 'create'])->name('cuti.create');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -54,17 +57,17 @@ Route::middleware('auth', 'role:admin|superadmin')->group(function() {
     Route::get('/organizational-structure/organizations/create', [OrganizationController::class, 'create'])->name('organizations.create');
     Route::get('/organizational-structure/organizations/{organizations}/edit', [OrganizationController::class, 'edit'])->name('organizations.edit');
     Route::post('/organizational-structure/organizations', [OrganizationController::class, 'store'])->name('organizations.store');
-    
+
     Route::get('/organizational-structure/fields', [FieldController::class, 'fieldShow'])->name('field.index');
     Route::get('/organizational-structure/fields/create', [FieldController::class, 'create'])->name('field.create');
     Route::get('/organizational-structure/fields/{field}/edit', [FieldController::class, 'edit'])->name('field.edit');
     Route::post('/organizational-structure/fields', [FieldController::class, 'store'])->name('field.store');
-    
+
     Route::get('/galery', [GaleryController::class, 'galleryShow'])->name('gallery.index');
     Route::get('/galery/create', [GaleryController::class, 'create'])->name('gallery.create');
     Route::get('/galery/{galery}/edit', [GaleryController::class, 'edit'])->name('gallery.edit');
     Route::post('/galery', [GaleryController::class, 'store'])->name('gallery.store');
-    
+
     Route::get('/news', [NewsController::class, 'newsShow'])->name('news.index');
     Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
     Route::get('/news/{news}/edit', [NewsController::class, 'edit'])->name('news.edit');
