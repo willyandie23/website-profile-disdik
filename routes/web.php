@@ -40,6 +40,9 @@ Route::get('/organisasi', [FrontendOrganizationController::class, 'index'])->nam
 Route::get('/hubungi-kami', [ContactController::class, 'index'])->name('hubungi.index');
 Route::post('/hubungi-kami', [ContactController::class, 'store'])->name('hubungi.store');
 
+Route::get('/cuti/track', [CutiController::class, 'track'])->name('cuti.track');
+Route::get('/cuti/create', [CutiController::class, 'create'])->name('cuti.create');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
