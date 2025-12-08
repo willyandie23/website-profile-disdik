@@ -92,8 +92,8 @@
                         </li>
                     </ul>
                 <li class="pc-item">
-                    <a href="" class="pc-link">
-                        <span class="pc-micon"><i class="ti ti-mailbox"></i></span>
+                    <a href="{{ route('pengajuan-cuti.index') }}" class="pc-link">
+                        <span class="pc-micon"><i class="ti ti-file-check"></i></span>
                         <span class="pc-mtext">Pengajuan Cuti</span>
                     </a>
                 </li>

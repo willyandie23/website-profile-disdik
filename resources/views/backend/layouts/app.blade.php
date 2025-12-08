@@ -32,12 +32,14 @@
         .ck-editor__editable {
             min-height: 350px !important;
         }
+
         .ck-content {
             line-height: 1.6;
         }
     </style>
 
     @stack('css')
+    @stack('styles')
 </head>
 
 <body data-pc-preset="preset-1" data-pc-direction="ltr" data-pc-theme="light">
@@ -77,9 +79,10 @@
         <div class="footer-wrapper container-fluid">
             <div class="row">
                 <div class="col-sm my-1">
-                    <p class="m-0">Website Profile Disbudporapar Dibuat dengan ♥ oleh<a href="https://diskominfopersantik.katingankab.go.id/"
-                            target="_blank"> <b>Diskominfostandi Kab. Katingan</b></a> Dikelola oleh <a
-                            href=""><b>Disbudporapar Kab. Katingan</b></a>.</p>
+                    <p class="m-0">Website Profile Disbudporapar Dibuat dengan ♥ oleh<a
+                            href="https://diskominfopersantik.katingankab.go.id/" target="_blank"> <b>Diskominfostandi
+                                Kab. Katingan</b></a> Dikelola oleh <a href=""><b>Disbudporapar Kab.
+                                Katingan</b></a>.</p>
                 </div>
             </div>
         </div>
@@ -93,12 +96,12 @@
     <script src="{{ asset('assets/js/pcoded.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/feather.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <!--Datatables -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-    
+
     <!-- CKEditor 5 -->
     <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 

@@ -15,6 +15,7 @@ use App\Http\Controllers\API\OrganizationController;
 use App\Http\Controllers\Backend\ContactController as BackendContactController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\JenisCutiController;
+use App\Http\Controllers\backend\PengajuanCutiController;
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\DownloadController as FrontendDownloadController;
 use App\Http\Controllers\Frontend\FieldController as FrontendFieldController;
@@ -94,6 +95,11 @@ Route::middleware('auth', 'role:admin|superadmin')->group(function () {
     Route::get('/jenis-cuti', [JenisCutiController::class, 'index'])->name('jenis-cuti.index');
     Route::get('/jenis-cuti/create', [JenisCutiController::class, 'create'])->name('jenis-cuti.create');
     Route::get('/jenis-cuti/{jenis}/edit', [JenisCutiController::class, 'edit'])->name('jenis-cuti.edit');
+
+    Route::get('/pengajuan-cuti', [PengajuanCutiController::class, 'index'])->name('pengajuan-cuti.index');
+    Route::get('/pengajuan-cuti/{id}/track', [PengajuanCutiController::class, 'track'])
+        ->name('track')
+        ->where('id', '[0-9]+');
 });
 
 require __DIR__ . '/auth.php';

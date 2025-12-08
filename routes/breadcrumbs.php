@@ -137,13 +137,23 @@ Breadcrumbs::for('link.edit', function (BreadcrumbTrail $trail, $linkId) {
 // Jenis Cuti breadcrumbs
 Breadcrumbs::for('jenis-cuti.index', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard');
-    $trail->push('Daftar jenis-cuti', route('jenis-cuti.index'));
+    $trail->push('Daftar Jenis Cuti', route('jenis-cuti.index'));
 });
 Breadcrumbs::for('jenis-cuti.create', function (BreadcrumbTrail $trail) {
     $trail->parent('jenis-cuti.index');
-    $trail->push('Tambah jenis-cuti', route('jenis-cuti.create'));
+    $trail->push('Tambah Jenis Cuti', route('jenis-cuti.create'));
 });
 Breadcrumbs::for('jenis-cuti.edit', function (BreadcrumbTrail $trail, $jenisCutiId) {
     $trail->parent('jenis-cuti.index');
-    $trail->push('Edit jenis-cuti', route('jenis-cuti.edit', $jenisCutiId));
+    $trail->push('Edit Jenis Cuti', route('jenis-cuti.edit', $jenisCutiId));
+});
+
+// Pengajuan Cuti breadcrumbs
+Breadcrumbs::for('pengajuan-cuti.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push('Daftar Pengajuan Cuti', route('pengajuan-cuti.index'));
+});
+Breadcrumbs::for('track', function (BreadcrumbTrail $trail, $jenisCutiId) {
+    $trail->parent('pengajuan-cuti.index');
+    $trail->push('History Pengajuan', route('track', $jenisCutiId));
 });
