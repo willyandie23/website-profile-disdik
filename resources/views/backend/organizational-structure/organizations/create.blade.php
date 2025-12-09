@@ -39,8 +39,8 @@
                                 <option value="1" data-subtitle="Kepala Dinas">Level 1 - Kepala Dinas</option>
                                 <option value="2" data-subtitle="Sekretaris Dinas">Level 2 - Sekretaris Dinas</option>
                                 <option value="3" data-subtitle="Kepala Bidang">Level 3 - Kepala Bidang</option>
-                                <option value="4" data-subtitle="Kassubag / Kasi / JFT">Level 4 - Kassubag/Kasi/JFT</option>
-                                <option value="5" data-subtitle="Koordinator Wilayah">Level 5 - Koordinator Wilayah</option>
+                                <option value="4" data-subtitle="Kasubag / JFT">Level 4 - Kasubag/Jabatan Fungsional</option>
+                                <option value="5" data-subtitle="Koordinator Wilayah">Level 5 - Kepala Seksi</option>
                             </select>
                         </div>
                         <div class="form-group">
