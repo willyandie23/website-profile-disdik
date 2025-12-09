@@ -13,16 +13,218 @@
                         </a>
                         Track History: {{ $pengajuan->kode_pengajuan }}
                     </h4>
-                    <div>
+                    {{-- <div>
                         @if ($pengajuan->final_pdf)
                             <a href="/storage/{{ $pengajuan->final_pdf }}" target="_blank" class="btn btn-success btn-sm">
                                 <i class="fas fa-file-pdf"></i> Download Surat Cuti
                             </a>
                         @endif
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="card-body">
+
+                    {{-- Tombol Aksi — KHUSUS PEJABAT --}}
+                    <div class="mb-4">
+                        @php
+                            $canProcess = false;
+                            $canCancel = false;
+
+                            $isAdminTu =
+                                auth()->user()->hasRole('admin') &&
+                                $pengajuan->level_approval === 'tu' &&
+                                in_array($pengajuan->status, ['diajukan', 'sedang_diproses']);
+
+                            $isKasubbag =
+                                auth()->user()->hasRole('kassubag') &&
+                                $pengajuan->level_approval === 'kasubbag' &&
+                                $pengajuan->status === 'sedang_diproses';
+
+                            // Cek apakah admin TU sudah approve dan bisa cancel
+                            $adminTuHasApproved =
+                                auth()->user()->hasRole('admin') &&
+                                $pengajuan->level_approval === 'kasubbag' &&
+                                $pengajuan->status === 'sedang_diproses';
+
+                            // Cek apakah kasubbag sudah approve/tolak dan bisa cancel
+                            $kasubbagHasProcessed =
+                                auth()->user()->hasRole('kassubag') &&
+                                in_array($pengajuan->status, ['disetujui', 'ditolak']);
+
+                            $canProcess = $isAdminTu || $isKasubbag;
+                            $canCancel = $adminTuHasApproved || $kasubbagHasProcessed;
+                        @endphp
+
+                        {{-- PANEL AKSI NORMAL (Belum diproses oleh user yang login) --}}
+                        @if ($canProcess)
+                            <div class="action-panel bg-light border rounded-3 p-4 shadow-sm mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-primary">
+                                            <i class="fas fa-user-cog me-2"></i>
+                                            Panel Aksi
+                                            @if ($isAdminTu)
+                                                <span class="text-info">Admin TU</span>
+                                            @elseif($isKasubbag)
+                                                <span class="text-warning">Kasubbag</span>
+                                            @endif
+                                        </h6>
+                                        <small class="text-muted">
+                                            @if ($pengajuan->status === 'diajukan')
+                                                Pengajuan baru masuk
+                                            @else
+                                                Sedang dalam proses verifikasi
+                                            @endif
+                                        </small>
+                                    </div>
+                                </div>
+
+                                {{-- TOMBOL LIHAT BERKAS (WAJIB!) --}}
+                                @if ($pengajuan->berkas->count() > 0)
+                                    <div class="mb-3">
+                                        <button class="btn btn-info btn-sm me-2" data-bs-toggle="modal"
+                                            data-bs-target="#modalBerkas">
+                                            <i class="fas fa-folder-open me-1"></i> Lihat Berkas Lampiran
+                                            ({{ $pengajuan->berkas->count() }} file)
+                                        </button>
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning small mb-3">
+                                        <i class="fas fa-exclamation-triangle"></i> Belum ada berkas yang diupload
+                                    </div>
+                                @endif
+
+                                <div class="d-flex gap-2 flex-wrap">
+                                    @if ($isAdminTu)
+                                        <button class="btn btn-success btn-sm" onclick="teruskan({{ $pengajuan->id }})">
+                                            <i class="fas fa-check me-1"></i> Setujui & Teruskan
+                                        </button>
+                                    @endif
+
+                                    @if ($isKasubbag)
+                                        <button class="btn btn-success btn-sm" onclick="teruskan({{ $pengajuan->id }})">
+                                            <i class="fas fa-check-double me-1"></i> Setujui Final
+                                        </button>
+                                    @endif
+
+                                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                        data-revisi="{{ $pengajuan->catatan_revisi }}" data-bs-target="#modalRevisi">
+                                        <i class="fas fa-edit me-1"></i> Minta Revisi
+                                    </button>
+
+                                    <button class="btn btn-danger btn-sm" onclick="tolakPengajuan({{ $pengajuan->id }})">
+                                        <i class="fas fa-times me-1"></i> Tolak
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- PANEL CANCEL AKSI (Sudah diproses, bisa dibatalkan) --}}
+                        @if ($canCancel)
+                            <div class="action-panel bg-warning-subtle border border-warning rounded-3 p-4 shadow-sm mb-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-warning">
+                                            <i class="fas fa-exclamation-circle me-2"></i>
+                                            Aksi Sudah Diproses
+                                        </h6>
+                                        <small class="text-muted">
+                                            @if ($adminTuHasApproved)
+                                                Anda telah menyetujui dan meneruskan ke Kasubbag
+                                            @elseif($kasubbagHasProcessed)
+                                                Anda telah memproses pengajuan ini
+                                            @endif
+                                        </small>
+                                        <div class="mt-2">
+                                            <span class="badge bg-warning text-dark">
+                                                Status: {{ $pengajuan->status_label ?? ucfirst($pengajuan->status) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                            onclick="cancelApproval({{ $pengajuan->id }})">
+                                            <i class="fas fa-undo me-1"></i> Batalkan Aksi
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if ($pengajuan->berkas->count() > 0)
+                                    <div class="mt-3">
+                                        <button class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#modalBerkas">
+                                            <i class="fas fa-folder-open me-1"></i> Lihat Berkas Lampiran
+                                            ({{ $pengajuan->berkas->count() }} file)
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+
+                        {{-- Sekdes & Kadis --}}
+                        @if (auth()->user()->hasAnyRole(['sekdes', 'kadis']))
+                            <div class="action-panel bg-light border rounded-3 p-3 shadow-sm mb-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fas fa-eye fa-2x text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Mode Pemantauan</h6>
+                                        <small class="text-muted">
+                                            @if (auth()->user()->hasRole('sekdes'))
+                                                Sekretaris Dinas
+                                            @elseif(auth()->user()->hasRole('kadis'))
+                                                Kepala Dinas
+                                            @endif
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Status Akhir --}}
+                        @if (in_array($pengajuan->status, ['disetujui', 'ditolak', 'selesai', 'dibatalkan']) && !$canCancel)
+                            <div
+                                class="action-panel border rounded-3 p-3 shadow-sm
+                                        {{ $pengajuan->status === 'disetujui'
+                                            ? 'bg-success-subtle border-success'
+                                            : ($pengajuan->status === 'ditolak'
+                                                ? 'bg-danger-subtle border-danger'
+                                                : ($pengajuan->status === 'selesai'
+                                                    ? 'bg-info-subtle border-info'
+                                                    : 'bg-dark-subtle border-dark')) }}">
+
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        @if ($pengajuan->status === 'disetujui')
+                                            <h6 class="mb-0 text-success fw-bold">
+                                                <i class="fas fa-check-circle me-2"></i>Pengajuan Disetujui
+                                            </h6>
+                                        @elseif($pengajuan->status === 'ditolak')
+                                            <h6 class="mb-0 text-danger fw-bold">
+                                                <i class="fas fa-times-circle me-2"></i>Pengajuan Ditolak
+                                            </h6>
+                                        @elseif($pengajuan->status === 'selesai')
+                                            <h6 class="mb-0 text-info fw-bold">
+                                                <i class="fas fa-flag-checkered me-2"></i>Cuti Selesai
+                                            </h6>
+                                        @elseif($pengajuan->status === 'dibatalkan')
+                                            <h6 class="mb-0 text-dark fw-bold">
+                                                <i class="fas fa-ban me-2"></i>Pengajuan Dibatalkan
+                                            </h6>
+                                        @endif
+                                    </div>
+                                    @if ($pengajuan->status === 'disetujui' && $pengajuan->final_pdf)
+                                        <a href="/storage/{{ $pengajuan->final_pdf }}" target="_blank"
+                                            class="btn btn-success btn-sm">
+                                            <i class="fas fa-file-pdf me-1"></i> Unduh Surat
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
                     <!-- Informasi Pengajuan -->
                     <div class="row mb-4">
                         <div class="col-md-6">
@@ -84,8 +286,27 @@
                         <div class="alert alert-warning border-start border-warning border-5">
                             <h5><i class="fas fa-exclamation-triangle"></i> Perlu Revisi</h5>
                             <p class="mb-0">{{ $pengajuan->catatan_revisi }}</p>
-                            <small class="text-muted">Oleh: {{ $pengajuan->revisi_oleh }}
-                                ({{ $pengajuan->revisi_oleh ? 'Admin TU' : 'Kasubbag' }})</small>
+                            <small class="text-muted d-block mt-2">
+                                Oleh: {{ $pengajuan->revisi_oleh }}
+                                ({{ $pengajuan->revisi_oleh ? 'Admin TU' : 'Kasubbag' }})
+                                @if ($pengajuan->tanggal_revisi)
+                                    • {{ \Carbon\Carbon::parse($pengajuan->tanggal_revisi)->format('d M Y H:i') }}
+                                @endif
+                            </small>
+                        </div>
+                    @elseif ($pengajuan->status_revisi === 'sudah_direvisi' && $pengajuan->catatan_revisi)
+                        <div class="alert alert-info border-start border-info border-5">
+                            <h5><i class="fas fa-check-circle"></i> Sudah Direvisi</h5>
+                            <p class="mb-2"><strong>Catatan revisi:</strong> {{ $pengajuan->catatan_revisi }}</p>
+                            <small class="text-muted d-block">
+                                Diminta oleh: {{ $pengajuan->revisi_oleh }}
+                                ({{ $pengajuan->revisi_oleh ? 'Admin TU' : 'Kasubbag' }})
+                            </small>
+                            <div class="mt-2">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-hourglass-half"></i> Menunggu verifikasi ulang
+                                </span>
+                            </div>
                         </div>
                     @endif
 
@@ -200,125 +421,285 @@
                             @endunless
                         @endforeach
                     </div>
+                </div>
 
-                    <!-- Tombol Aksi (sesuai hak & status) -->
-                    <div class="mt-5 p-4 border rounded bg-light">
-                        <h5 class="mb-3"><i class="fas fa-cogs text-primary"></i> Aksi Tersedia</h5>
-                        <div class="d-grid gap-2">
+            </div>
+        </div>
+    </div>
+    </div>
 
-                            @if ($pengajuan->status_revisi === 'perlu_revisi' && $pengajuan->nip === auth()->user()?->nip)
-                                <button class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#modalRevisi">
-                                    <i class="fas fa-upload me-2"></i> Upload Ulang Berkas & Kirim Revisi
-                                </button>
-                            @endif
-
-                            @if (auth()->user()->hasRole('admin_tu') &&
-                                    $pengajuan->level_approval === 'tu' &&
-                                    $pengajuan->status === 'sedang_diproses')
-                                <button class="btn btn-success btn-lg"
-                                    onclick="prosesApproval('terima_tu', {{ $pengajuan->id }})">
-                                    <i class="fas fa-check me-2"></i> Setujui & Kirim ke Kasubbag
-                                </button>
-                                <button class="btn btn-danger btn-lg" data-bs-toggle="modal"
-                                    data-bs-target="#modalRevisiTu">
-                                    <i class="fas fa-times me-2"></i> Minta Revisi
-                                </button>
-                            @endif
-
-                            @if (auth()->user()->hasRole('kasubbag') &&
-                                    $pengajuan->level_approval === 'kasubbag' &&
-                                    $pengajuan->status === 'sedang_diproses')
-                                <button class="btn btn-success btn-lg"
-                                    onclick="prosesApproval('terima_kasubbag', {{ $pengajuan->id }})">
-                                    <i class="fas fa-check-double me-2"></i> Setujui (Final)
-                                </button>
-                                <button class="btn btn-danger btn-lg" data-bs-toggle="modal"
-                                    data-bs-target="#modalRevisiKasubbag">
-                                    <i class="fas fa-times me-2"></i> Minta Revisi
-                                </button>
-                                <button class="btn btn-secondary btn-lg"
-                                    onclick="prosesApproval('tolak', {{ $pengajuan->id }})">
-                                    <i class="fas fa-ban me-2"></i> Tolak Pengajuan
-                                </button>
-                            @endif
-
-                            @if (in_array($pengajuan->status, ['diajukan', 'sedang_diproses']) && $pengajuan->nip === auth()->user()?->nip)
-                                <button class="btn btn-dark btn-lg" onclick="batalkanPengajuan({{ $pengajuan->id }})">
-                                    <i class="fas fa-ban me-2"></i> Batalkan Pengajuan
-                                </button>
-                            @endif
+    <!-- Modal Lihat Berkas -->
+    <div class="modal fade" id="modalBerkas" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-folder-open"></i> Berkas Lampiran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    @if ($pengajuan->berkas->count() > 0)
+                        <div class="row">
+                            @foreach ($pengajuan->berkas as $berkas)
+                                <div class="col-md-4 mb-3">
+                                    <div class="card border-primary h-100">
+                                        <div class="card-body text-center p-3">
+                                            <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
+                                            <p class="small text-muted mb-1">{{ $berkas->nama_asli }}</p>
+                                            <a href="/storage/{{ $berkas->path }}" target="_blank"
+                                                class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i> Lihat
+                                            </a>
+                                            <a href="/storage/{{ $berkas->path }}" download
+                                                class="btn btn-outline-success btn-sm">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                    </div>
+                    @else
+                        <p class="text-center text-muted">Belum ada berkas yang diupload.</p>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Revisi Pemohon -->
+    <!-- Modal Minta Revisi (DIGUNAKAN BERSAMA oleh Admin TU & Kasubbag) -->
     <div class="modal fade" id="modalRevisi" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Upload Ulang Berkas Revisi</h5>
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title text-light"><i class="fas fa-edit"></i> Minta Revisi Berkas</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="formRevisi">
+                <form id="formMintaRevisi">
+                    @csrf
                     <div class="modal-body">
-                        <input type="hidden" name="pengajuan_id" value="{{ $pengajuan->id }}">
                         <div class="mb-3">
-                            <label class="form-label">Upload Berkas Baru (PDF/JPG/PNG)</label>
-                            <input type="file" name="berkas[]" class="form-control" multiple required>
+                            <label class="form-label fw-bold">Catatan Revisi <span class="text-danger">*</span></label>
+                            <textarea name="catatan_revisi" class="form-control" rows="5" required
+                                placeholder="Tulis dengan jelas bagian mana yang perlu diperbaiki..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Kirim Revisi</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-paper-plane"></i> Kirim Permintaan Revisi
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
 @endsection
 
 @push('scripts')
     <script>
-        function prosesApproval(tipe, id) {
+        document.addEventListener('DOMContentLoaded', function() {
+            $('#modalRevisi').on('show.bs.modal', function(event) {
+                let button = $(event.relatedTarget);
+                let catatan = button.data('revisi');
+
+                // Masukkan ke dalam textarea
+                $(this).find('textarea[name="catatan_revisi"]').val(catatan);
+            });
+        });
+        // 1. Teruskan (Admin TU / Kasubbag)
+        function teruskan(id) {
             Swal.fire({
-                title: 'Yakin?',
-                text: `Anda akan ${tipe === 'terima_tu' ? 'meneruskan ke Kasubbag' : tipe === 'terima_kasubbag' ? 'menyetujui final' : 'menolak'} pengajuan ini`,
+                title: 'Yakin menyetujui?',
+                text: 'Pengajuan akan diteruskan ke tahap berikutnya',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, lanjutkan!'
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Setujui!',
+                cancelButtonText: 'Batal'
             }).then(result => {
                 if (result.isConfirmed) {
-                    fetch(`/api/pengajuan-cuti/${id}/${tipe}`, {
+                    fetch(`/api/pengajuan-cuti/${id}/teruskan`, {
                             method: 'POST',
                             headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
                             }
                         })
                         .then(r => r.json())
                         .then(data => {
                             if (data.success) {
-                                Swal.fire('Sukses!', data.message, 'success').then(() => location.reload());
+                                Swal.fire('Berhasil!', data.message, 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Gagal!', data.message, 'error');
                             }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error!', 'Terjadi kesalahan pada server', 'error');
                         });
                 }
             });
         }
 
+        // 2. Cancel Approval
+        function cancelApproval(id) {
+            Swal.fire({
+                title: 'Batalkan Aksi?',
+                text: 'Pengajuan akan dikembalikan ke status sebelumnya',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Tidak'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    fetch(`/api/pengajuan-cuti/${id}/cancel_approval`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Berhasil!', data.message, 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Gagal!', data.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error!', 'Terjadi kesalahan pada server', 'error');
+                        });
+                }
+            });
+        }
+
+        // 3. Batalkan Pengajuan (by User)
         function batalkanPengajuan(id) {
             Swal.fire({
                 title: 'Batalkan pengajuan?',
+                text: 'Pengajuan akan dibatalkan secara permanen',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, batalkan!'
-            }).then(res => {
-                if (res.isConfirmed) {
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, batalkan!',
+                cancelButtonText: 'Tidak'
+            }).then(result => {
+                if (result.isConfirmed) {
                     fetch(`/api/pengajuan-cuti/${id}/batalkan`, {
-                            method: 'POST'
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
                         })
-                        .then(() => location.reload());
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Berhasil!', data.message, 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Gagal!', data.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error!', 'Terjadi kesalahan pada server', 'error');
+                        });
+                }
+            });
+        }
+
+        // 4. Submit Minta Revisi
+        document.getElementById('formMintaRevisi')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            // Tutup modal terlebih dahulu
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalRevisi'));
+            if (modal) {
+                modal.hide();
+            }
+
+            // Tunggu sebentar agar modal benar-benar tertutup
+            setTimeout(() => {
+                Swal.fire({
+                    title: 'Kirim permintaan revisi?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ffc107',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, kirim!',
+                    cancelButtonText: 'Batal'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        fetch(`/api/pengajuan-cuti/{{ $pengajuan->id }}/minta_revisi`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: formData
+                            })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('Terkirim!', data.message, 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Gagal!', data.message, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire('Error!', 'Terjadi kesalahan pada server', 'error');
+                            });
+                    } else {
+                        // Jika dibatalkan, buka kembali modal
+                        modal.show();
+                    }
+                });
+            }, 300);
+        });
+
+        // 5. Tolak Pengajuan
+        function tolakPengajuan(id) {
+            Swal.fire({
+                title: 'Tolak Pengajuan?',
+                text: 'Pengajuan akan ditolak dan tidak dapat diproses lagi',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Tolak!',
+                cancelButtonText: 'Batal'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    fetch(`/api/pengajuan-cuti/${id}/tolak`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire('Ditolak!', data.message, 'success')
+                                    .then(() => location.reload());
+                            } else {
+                                Swal.fire('Gagal!', data.message, 'error');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire('Error!', 'Terjadi kesalahan pada server', 'error');
+                        });
                 }
             });
         }

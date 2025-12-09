@@ -86,9 +86,9 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/jenis-cuti/{id}', [JenisCutiController::class, 'update']);
     Route::delete('/jenis-cuti/{id}', [JenisCutiController::class, 'destroy']);
 
-    Route::post('/pengajuan-cuti/{id}/ajukan', [PengajuanCutiController::class, 'ajukan']);
-    Route::post('/pengajuan-cuti/{id}/terima', [PengajuanCutiController::class, 'terima']);
+    Route::post('/pengajuan-cuti/{id}/teruskan', [PengajuanCutiController::class, 'teruskan']);
+    Route::post('/pengajuan-cuti/{id}/minta_revisi', [PengajuanCutiController::class, 'mintaRevisi']);
     Route::post('/pengajuan-cuti/{id}/tolak', [PengajuanCutiController::class, 'tolak']);
-    Route::put('/pengajuan-cuti/{id}', [PengajuanCutiController::class, 'update']);
-    Route::delete('/pengajuan-cuti/{id}', [PengajuanCutiController::class, 'destroy']);
+    Route::post('/pengajuan-cuti/{id}/cancel_approval', [PengajuanCutiController::class, 'cancelApproval']);
+    Route::post('/pengajuan-cuti/{id}/batalkan', [PengajuanCutiController::class, 'batalkan']);
 });
