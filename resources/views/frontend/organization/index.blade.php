@@ -448,7 +448,7 @@
         {{-- LEVEL 4 – Kasubag/Kasi/JFT --}}
         @if ($staff->count())
             <div class="level-section">
-                <div class="level-title">Kasubag / Kasi / Jabatan Fungsional Tertentu</div>
+                <div class="level-title">Kasubag / Jabatan Fungsional</div>
                 <div class="org-row">
                     @foreach ($staff as $org)
                         <div class="org-col">
@@ -474,7 +474,7 @@
         {{-- LEVEL 5 – Koordinator Wilayah --}}
         @if ($kanwil->count())
             <div class="level-section">
-                <div class="level-title">Koordinator Wilayah</div>
+                <div class="level-title">Kepala Seksi (Kasi)</div>
                 <div class="org-row">
                     @foreach ($kanwil as $org)
                         <div class="org-col">

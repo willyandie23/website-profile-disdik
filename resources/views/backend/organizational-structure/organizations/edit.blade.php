@@ -65,15 +65,15 @@
                                 </option>
                                 
                                 <option value="4" 
-                                    data-subtitle="Kassubag / Kasi / JFT" 
+                                    data-subtitle="Kasubag/Jabatan Fungsional" 
                                     {{ old('level', $organizations->level) == 4 ? 'selected' : '' }}>
-                                    Level 4 - Kassubag/Kasi/JFT
+                                    Level 4 - Kasubag/Jabatan Fungsional
                                 </option>
                                 
                                 <option value="5" 
-                                    data-subtitle="Koordinator Wilayah" 
+                                    data-subtitle="Kepala Seksi (Kasi)" 
                                     {{ old('level', $organizations->level) == 5 ? 'selected' : '' }}>
-                                    Level 5 - Koordinator Wilayah
+                                    Level 5 - Kepala Seksi (Kasi)
                                 </option>
                             </select>
                         </div>
