@@ -60,7 +60,7 @@ class PengajuanCutiController extends Controller
             'jenisCuti',
             'riwayatStatus' => fn($q) => $q->latest('tanggal')->limit(5)
         ])
-            ->latest('tanggal_pengajuan');
+            ->latest('updated_at');
 
         // Filter opsional
         if ($request->filled('status')) {
@@ -188,7 +188,10 @@ class PengajuanCutiController extends Controller
                 'status_lama' => $pengajuan->getOriginal('status'),
                 'status_baru' => $pengajuan->status,
                 'oleh'        => $user->name,
-                'catatan'     => 'Diminta revisi berkas: ' . implode(', ', $request->tipe_berkas_revisi),
+                'catatan' => 'Diminta revisi berkas: ' . implode(', ', array_map(function ($v) {
+                    return str_replace('_', ' ', $v);
+                }, $request->tipe_berkas_revisi)),
+
                 'tanggal'     => now()
             ]);
 

@@ -56,7 +56,7 @@
                         <table id="pengajuan-table" class="table table-striped table-bordered" style="width:100%">
                             <thead class="table-light">
                                 <tr>
-                                    <th>No</th>
+                                    {{-- <th>No</th> --}}
                                     <th>Kode</th>
                                     <th>Nama / NIP</th>
                                     <th>Jenis Cuti</th>
@@ -94,11 +94,12 @@
                     url: '/api/pengajuan-cuti',
                     dataSrc: 'data'
                 },
-                columns: [{
-                        data: null,
-                        orderable: false,
-                        render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
-                    },
+                columns: [
+                    // {
+                    //     data: null,
+                    //     orderable: true,
+                    //     render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+                    // },
                     {
                         data: 'kode_pengajuan',
                         render: data => `<strong>${data}</strong>`
@@ -279,7 +280,7 @@
                     }
                 ],
                 order: [
-                    [1, 'desc']
+                    []
                 ],
                 language: {
                     processing: "Memuat data...",

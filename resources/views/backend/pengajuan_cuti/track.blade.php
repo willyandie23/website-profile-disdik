@@ -155,7 +155,8 @@
                                     @endif
 
                                     <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                        data-revisi="{{ $pengajuan->catatan_revisi }}" data-bs-target="#modalRevisi">
+                                        data-revisi="{{ $pengajuan->catatan_revisi }}"
+                                        data-berkas="@json($pengajuan->tipe_berkas_revisi)" data-bs-target="#modalRevisi">
                                         <i class="fas fa-edit me-1"></i> Minta Revisi
                                     </button>
 
@@ -685,11 +686,64 @@
             $('#modalRevisi').on('show.bs.modal', function(event) {
                 let button = $(event.relatedTarget);
                 let catatan = button.data('revisi');
+                let berkas = button.data('berkas');
 
-                // Masukkan ke dalam textarea
-                $(this).find('textarea[name="catatan_revisi"]').val(catatan);
+                // Pasang catatan di textarea
+                $(this).find('textarea[name="catatan_revisi"]').val(catatan ?? '');
+
+                // Clear semua checkbox dulu agar tidak nyangkut
+                $(this).find('input[name="tipe_berkas_revisi[]"]').prop('checked', false);
+
+                // Jika tidak ada data, selesai — checkbox tetap kosong
+                if (!berkas && berkas !== 0) return;
+
+                // Normalisasi jadi array string: listBerkas
+                let listBerkas = [];
+
+                // 1) Jika sudah array (Array dari PHP json_decode atau jQuery parsing)
+                if (Array.isArray(berkas)) {
+                    listBerkas = berkas.map(item => String(item).trim()).filter(Boolean);
+                }
+                // 2) Jika object (misal {0: "lampiran", 1: "surat"}), ambil values
+                else if (berkas !== null && typeof berkas === 'object') {
+                    listBerkas = Object.values(berkas).map(item => String(item).trim()).filter(Boolean);
+                }
+                // 3) Jika string -> coba parse JSON terlebih dahulu, kalau gagal split by comma
+                else if (typeof berkas === 'string') {
+                    let trimmed = berkas.trim();
+                    if (!trimmed || trimmed === '[]' || trimmed === 'null') {
+                        listBerkas = [];
+                    } else {
+                        try {
+                            let parsed = JSON.parse(trimmed);
+                            if (Array.isArray(parsed)) {
+                                listBerkas = parsed.map(item => String(item).trim()).filter(Boolean);
+                            } else if (parsed !== null && typeof parsed === 'object') {
+                                listBerkas = Object.values(parsed).map(item => String(item).trim()).filter(
+                                    Boolean);
+                            } else {
+                                // bukan JSON array/object, fallback split
+                                listBerkas = trimmed.split(',').map(s => s.trim()).filter(Boolean);
+                            }
+                        } catch (e) {
+                            // fallback: string separated by comma
+                            listBerkas = trimmed.split(',').map(s => s.trim()).filter(Boolean);
+                        }
+                    }
+                } else {
+                    // tipe lain (number, boolean) -> cast ke string
+                    listBerkas = [String(berkas)];
+                }
+
+                // Centang checkbox sesuai listBerkas
+                listBerkas.forEach(function(item) {
+                    $(this).find(`input[name="tipe_berkas_revisi[]"][value="${item}"]`).prop(
+                        'checked', true);
+                }.bind(this));
             });
         });
+
+
 
         // 1. Teruskan (Admin TU / Kasubbag)
         function teruskan(id) {
