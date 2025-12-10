@@ -41,34 +41,32 @@
         </div>
     </div>
 
-    {{-- NOTIFIKASI REVISI — LEBIH CANTIK & COMPACT --}}
     @if ($pengajuan->status_revisi === 'perlu_revisi')
-        <div class="card border-start border-warning border-5 shadow-lg mb-5 overflow-hidden">
-            <div class="card-body p-4 bg-gradient-warning bg-opacity-10">
-                <div class="d-flex align-items-start gap-4">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+        <div class="alert alert-warning border-start border-warning border-5 shadow-lg mb-5 p-5 rounded-4">
+            {{-- TAMBAHAN INI YANG FIX MASALAH --}}
+            <input type="hidden" name="pengajuan_id" value="{{ $pengajuan->id }}">
+
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+                </div>
+                <div class="col">
+                    <h4 class="fw-bold mb-3">Pengajuan Anda Perlu Direvisi!</h4>
+                    <div class="bg-light p-4 rounded-3 mb-4">
+                        <strong>Catatan dari Admin:</strong><br>
+                        <p class="mb-0 lead">{{ $pengajuan->catatan_revisi }}</p>
                     </div>
-                    <div class="flex-grow-1">
-                        <h5 class="fw-bold text-dark mb-3">
-                            <i class="fas fa-tools text-warning me-2"></i> Perlu Revisi Berkas
-                        </h5>
-                        <div class="bg-white rounded-3 p-3 mb-3 small shadow-sm">
-                            <strong>Catatan Admin:</strong><br>
-                            {{ $pengajuan->catatan_revisi }}
-                        </div>
-                        <button class="btn btn-warning rounded-pill px-5 shadow" data-bs-toggle="modal"
-                            data-bs-target="#modalRevisi">
-                            <i class="fas fa-upload me-2"></i><strong>Upload Revisi Sekarang</strong>
-                        </button>
-                    </div>
+                    <button class="btn btn-warning btn-lg px-5 rounded-pill shadow" data-bs-toggle="modal"
+                        data-bs-target="#modalRevisi">
+                        <i class="fas fa-edit me-3"></i><strong>Revisi Berkas Sekarang</strong>
+                    </button>
                 </div>
             </div>
         </div>
     @elseif($pengajuan->status_revisi === 'sudah_direvisi')
-        <div class="alert alert-success shadow-sm border-0 mb-5">
-            <i class="fas fa-paper-plane me-2"></i>
-            <strong>Revisi telah dikirim</strong> — Menunggu verifikasi ulang oleh admin.
+        <div class="alert alert-success border-start border-success border-5 shadow-sm mb-5 p-4">
+            <i class="fas fa-check-circle fa-2x me-3"></i>
+            <strong>Revisi telah dikirim</strong> — Menunggu verifikasi ulang.
         </div>
     @endif
 
