@@ -103,7 +103,10 @@ Route::middleware('auth', 'role:admin|superadmin')->group(function () {
     Route::get('/jenis-cuti', [JenisCutiController::class, 'index'])->name('jenis-cuti.index');
     Route::get('/jenis-cuti/create', [JenisCutiController::class, 'create'])->name('jenis-cuti.create');
     Route::get('/jenis-cuti/{jenis}/edit', [JenisCutiController::class, 'edit'])->name('jenis-cuti.edit');
+});
 
+
+Route::middleware('auth', 'role:admin|superadmin|kassubag|sekdis|kadis')->group(function () {
     Route::get('/pengajuan-cuti', [PengajuanCutiController::class, 'index'])->name('pengajuan-cuti.index');
     Route::get('/pengajuan-cuti/{id}/track', [PengajuanCutiController::class, 'track'])
         ->name('track')

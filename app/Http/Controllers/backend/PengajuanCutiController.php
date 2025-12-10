@@ -25,9 +25,6 @@ class PengajuanCutiController extends Controller
             ->findOrFail($id);
         // dd($pengajuan);
 
-        // Optional: cek hak akses (misal hanya pemohon, TU, Kasubbag, Sekdin, Kadis)
-        // if (!auth()->user()->canViewPengajuan($pengajuan)) abort(403);
-
         return view('backend.pengajuan_cuti.track', compact('pengajuan'));
     }
 }

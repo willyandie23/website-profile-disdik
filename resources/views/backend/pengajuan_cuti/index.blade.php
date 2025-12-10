@@ -13,25 +13,34 @@
                 <div class="card-body">
                     <!-- Filter Section -->
                     <div class="row mb-3">
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-3 mb-2">
                             <label class="form-label fw-semibold">Filter Status</label>
                             <select id="filter-status" class="form-select">
                                 <option value="">Semua Status</option>
                                 <option value="draft">Draft</option>
                                 <option value="diajukan">Diajukan</option>
                                 <option value="sedang_diproses">Sedang Diproses</option>
-                                <option value="disetujui">Disetujui</option>
+                                <option value="disetujui">Selesai</option>
                                 <option value="ditolak">Ditolak</option>
                                 <option value="dibatalkan">Dibatalkan</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label fw-semibold">Filter Status Revisi</label>
+                            <select id="filter-revisi" class="form-select">
+                                <option value="">Semua Status</option>
+                                <option value="tidak_perlu">Tidak Perlu</option>
+                                <option value="perlu_revisi">Sedang Direvisi</option>
+                                <option value="sudah_direvisi">Selesai Direvisi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
                             <label class="form-label fw-semibold">Filter Jenis Cuti</label>
                             <select id="filter-jenis" class="form-select">
                                 <option value="">Semua Jenis</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-3 mb-2">
                             <label class="form-label fw-semibold">Filter Periode</label>
                             <select id="filter-periode" class="form-select">
                                 <option value="">Semua Periode</option>
@@ -53,8 +62,9 @@
                                     <th>Jenis Cuti</th>
                                     <th>Tanggal Cuti</th>
                                     <th>Hari</th>
-                                    <th>Alasan</th>
-                                    <th>Status</th>
+                                    <th>Perlu Tindakan</th>
+                                    <th>Status Pengajuan</th>
+                                    <th>Status Revisi</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -118,21 +128,128 @@
                         render: data => `<span class="badge bg-info fs-6">${data} hari</span>`
                     },
                     {
-                        data: 'alasan_cuti',
-                        render: data => data ? (data.length > 40 ? data.substring(0, 40) + '...' :
-                            data) : '-'
+                        data: null,
+                        title: 'Perlu Tindakan?',
+                        orderable: false,
+                        className: 'text-start',
+                        render: function(data, type, row) {
+                            const tuApproved = row.approved_at_tu !== null;
+                            const kasubbagApproved = row.approved_at_kasubbag !== null;
+                            const role = '{{ auth()->user()->getRoleNames()->first() }}';
+
+                            let badge = 'bg-secondary';
+                            let text = 'Menunggu';
+
+                            if (role === 'admin') {
+                                if (row.level_approval === 'tu' && row.status ===
+                                    'sedang_diproses' && !tuApproved) {
+                                    badge = 'bg-danger text-white';
+                                    text = 'PERLU TINDAKAN!';
+                                } else if (tuApproved) {
+                                    badge = 'bg-success';
+                                    text = 'Sudah Diteruskan';
+                                }
+                            } else if (role === 'kassubag') {
+                                if (tuApproved && row.level_approval === 'kasubbag' && row
+                                    .status === 'sedang_diproses' && !kasubbagApproved) {
+                                    badge = 'bg-danger text-white';
+                                    text = 'PERLU TINDAKAN!';
+                                } else if (kasubbagApproved) {
+                                    badge = 'bg-success';
+                                    text = 'Sudah Final';
+                                } else {
+                                    text = 'Menunggu TU';
+                                }
+                            } else {
+                                // Sekdes / Kadis
+                                if (!tuApproved) text = 'Menunggu Admin TU';
+                                else if (!kasubbagApproved) text = 'Menunggu Kasubbag';
+                                else {
+                                    text = 'Selesai';
+                                    badge = 'bg-success';
+                                }
+                            }
+
+                            return `<span class="badge ${badge} fw-bold px-2 py-2">${text}</span>`;
+                        }
                     },
                     {
-                        data: 'status',
+                        data: null,
+                        title: 'Status',
+                        orderable: false,
+                        className: 'text-start',
+                        render: function(data, type, row) {
+                            const status = row.status;
+                            const level = row.level_approval;
+                            const role =
+                                '{{ auth()->user()->getRoleNames()->first() }}'; // role user yang login
+
+                            let badgeClass = 'bg-secondary';
+                            let text = 'Tidak Diketahui';
+
+                            // === KHUSUS UNTUK ROLE 'admin' (Admin TU) ===
+                            if (role === 'admin' && status === 'disetujui') {
+                                if (!row.final_pdf || row.final_pdf === '' || row.final_pdf ===
+                                    null) {
+                                    badgeClass = 'bg-warning text-dark';
+                                    text = 'Disetujui / Surat Cuti belum diupload';
+                                } else {
+                                    badgeClass = 'bg-success';
+                                    text = 'Disetujui / Surat Cuti sudah diupload';
+                                }
+                            }
+                            // === UNTUK SEMUA ROLE (termasuk admin jika bukan kasus di atas) ===
+                            else {
+                                if (status === 'draft') {
+                                    badgeClass = 'bg-secondary';
+                                    text = 'Draft';
+                                } else if (status === 'diajukan') {
+                                    badgeClass = 'bg-primary';
+                                    text = 'Diajukan';
+                                } else if (status === 'sedang_diproses') {
+                                    if (level === 'tu') {
+                                        badgeClass = 'bg-warning text-dark';
+                                        text = 'Diproses oleh Admin TU';
+                                    } else if (level === 'kasubbag') {
+                                        badgeClass = 'bg-orange text-white';
+                                        text = 'Diproses oleh Kasubbag';
+                                    } else {
+                                        badgeClass = 'bg-warning text-dark';
+                                        text = 'Sedang Diproses';
+                                    }
+                                } else if (status === 'disetujui') {
+                                    badgeClass = 'bg-success';
+                                    text = 'Disetujui Final';
+                                } else if (status === 'ditolak') {
+                                    if (level === 'tu') {
+                                        badgeClass = 'bg-danger';
+                                        text = 'Ditolak oleh Admin TU';
+                                    } else if (level === 'kasubbag') {
+                                        badgeClass = 'bg-danger';
+                                        text = 'Ditolak oleh Kasubbag';
+                                    } else {
+                                        badgeClass = 'bg-danger';
+                                        text = 'Ditolak';
+                                    }
+                                } else if (status === 'selesai') {
+                                    badgeClass = 'bg-info';
+                                    text = 'Selesai';
+                                } else if (status === 'dibatalkan') {
+                                    badgeClass = 'bg-dark';
+                                    text = 'Dibatalkan';
+                                }
+                            }
+
+                            return `<span class="badge ${badgeClass} fw-bold px-2 py-2">${text}</span>`;
+                        }
+                    },
+                    {
+                        data: 'status_revisi',
                         render: function(data) {
                             const badgeMap = {
-                                'draft': ['bg-secondary', 'Draft'],
-                                'diajukan': ['bg-primary', 'Diajukan'],
-                                'sedang_diproses': ['bg-warning text-dark', 'Diproses'],
-                                'disetujui': ['bg-success', 'Disetujui'],
-                                'ditolak': ['bg-danger', 'Ditolak'],
-                                'selesai': ['bg-info', 'Selesai'],
-                                'dibatalkan': ['bg-dark', 'Dibatalkan']
+                                'tidak_perlu': ['bg-primary', 'Tidak Perlu'],
+                                'perlu_revisi': ['bg-warning text-dark', 'Sedang Direvisi'],
+                                'sudah_direvisi': ['bg-success', 'Sudah Direvisi'],
                             };
 
                             const [bg, text] = badgeMap[data] || ['bg-secondary', data];
@@ -147,7 +264,7 @@
 
                             // Tombol Track History untuk melihat detail dan histori pengajuan
                             btn +=
-                                `<button class="btn btn-outline-primary btn-sm btn-history me-1" data-id="${row.id}" title="Track History"><i class="fas fa-history"></i> History</button>`;
+                                `<button class="btn btn-outline-primary btn-sm btn-history me-1" data-id="${row.id}" title="Track History"><i class="fas fa-history"></i> Proses</button>`;
 
                             // Hanya draft yang bisa edit & hapus
                             if (row.status === 'draft') {
@@ -195,11 +312,17 @@
                 if (!rowData) return true;
 
                 const filterStatus = $('#filter-status').val();
+                const filterRevisi = $('#filter-revisi').val();
                 const filterJenis = $('#filter-jenis').val();
                 const filterPeriode = $('#filter-periode').val();
 
                 // Filter status
                 if (filterStatus && rowData.status !== filterStatus) {
+                    return false;
+                }
+
+                // Filter revisi
+                if (filterRevisi && rowData.status_revisi !== filterRevisi) {
                     return false;
                 }
 
@@ -240,6 +363,11 @@
                 table.draw();
             });
 
+            //Event listener untuk filter revisi
+            $('#filter-revisi').on('change', function() {
+                table.draw();
+            });
+
             // === Event Handler Tombol Aksi ===
             $('#pengajuan-table tbody').on('click', '.btn-history', function() {
                 const id = $(this).data('id');
@@ -272,4 +400,12 @@
         });
     </script>
 @endpush
-</document_content>
+
+@push('styles')
+    <style>
+        .bg-orange {
+            background-color: #fd7e14 !important;
+            color: white !important;
+        }
+    </style>
+    </document_content>
