@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class BerkasPengajuan extends Model
 {
-    use HasFactory, ModelLog;
+    use HasFactory;
     protected $table = 'berkas_pengajuan';
     protected $guarded = ['id'];
 

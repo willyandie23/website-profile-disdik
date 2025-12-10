@@ -23,6 +23,7 @@ use App\Http\Controllers\Frontend\GaleryController as FrontendGaleryController;
 use App\Http\Controllers\Frontend\GreetingController;
 use App\Http\Controllers\Frontend\NewsController as FrontendNewsController;
 use App\Http\Controllers\Frontend\OrganizationController as FrontendOrganizationController;
+use App\Http\Controllers\Frontend\CutiController;
 
 Route::get('/', [MainController::class, 'index'])->name('home.index');
 
@@ -40,8 +41,12 @@ Route::get('/organisasi', [FrontendOrganizationController::class, 'index'])->nam
 Route::get('/hubungi-kami', [ContactController::class, 'index'])->name('hubungi.index');
 Route::post('/hubungi-kami', [ContactController::class, 'store'])->name('hubungi.store');
 
-Route::get('/cuti/track', [CutiController::class, 'track'])->name('cuti.track');
-Route::get('/cuti/create', [CutiController::class, 'create'])->name('cuti.create');
+Route::prefix('cuti')->name('cuti.')->group(function () {
+    Route::post('/store', [CutiController::class, 'store'])->name('store');
+    Route::get('/track', [CutiController::class, 'track'])->name('track');
+    Route::get('/get-jenis-cuti/{id}', [CutiController::class, 'getJenisCuti'])->name('getJenisCuti');
+    Route::post('/submit-revisi', [CutiController::class, 'submitRevisi'])->name('submit-revisi');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

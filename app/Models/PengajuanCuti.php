@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PengajuanCuti extends Model
 {
-    use HasFactory, SoftDeletes, ModelLog;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'pengajuan_cuti';
     protected $guarded = ['id'];
