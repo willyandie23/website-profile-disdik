@@ -63,7 +63,7 @@
                                     <th>Tanggal Cuti</th>
                                     <th>Hari</th>
                                     <th>Perlu Tindakan</th>
-                                    {{-- <th>Status Pengajuan</th> --}}
+                                    <th>Status Pengajuan</th>
                                     <th>Status Revisi</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -173,23 +173,76 @@
                             return `<span class="badge ${badge} fw-bold px-2 py-2">${text}</span>`;
                         }
                     },
-                    // {
-                    //     data: 'status',
-                    //     render: function(data) {
-                    //         const badgeMap = {
-                    //             'draft': ['bg-secondary', 'Draft'],
-                    //             'diajukan': ['bg-primary', 'Diajukan'],
-                    //             'sedang_diproses': ['bg-warning text-dark', 'Diproses'],
-                    //             'disetujui': ['bg-success', 'Disetujui'],
-                    //             'ditolak': ['bg-danger', 'Ditolak'],
-                    //             'selesai': ['bg-info', 'Selesai'],
-                    //             'dibatalkan': ['bg-dark', 'Dibatalkan']
-                    //         };
+                    {
+                        data: null,
+                        title: 'Status',
+                        orderable: false,
+                        className: 'text-start',
+                        render: function(data, type, row) {
+                            const status = row.status;
+                            const level = row.level_approval;
+                            const role =
+                                '{{ auth()->user()->getRoleNames()->first() }}'; // role user yang login
 
-                    //         const [bg, text] = badgeMap[data] || ['bg-secondary', data];
-                    //         return `<span class="badge ${bg} fw-semibold">${text}</span>`;
-                    //     }
-                    // },
+                            let badgeClass = 'bg-secondary';
+                            let text = 'Tidak Diketahui';
+
+                            // === KHUSUS UNTUK ROLE 'admin' (Admin TU) ===
+                            if (role === 'admin' && status === 'disetujui') {
+                                if (!row.final_pdf || row.final_pdf === '' || row.final_pdf ===
+                                    null) {
+                                    badgeClass = 'bg-warning text-dark';
+                                    text = 'Disetujui / Surat Cuti belum diupload';
+                                } else {
+                                    badgeClass = 'bg-success';
+                                    text = 'Disetujui / Surat Cuti sudah diupload';
+                                }
+                            }
+                            // === UNTUK SEMUA ROLE (termasuk admin jika bukan kasus di atas) ===
+                            else {
+                                if (status === 'draft') {
+                                    badgeClass = 'bg-secondary';
+                                    text = 'Draft';
+                                } else if (status === 'diajukan') {
+                                    badgeClass = 'bg-primary';
+                                    text = 'Diajukan';
+                                } else if (status === 'sedang_diproses') {
+                                    if (level === 'tu') {
+                                        badgeClass = 'bg-warning text-dark';
+                                        text = 'Diproses oleh Admin TU';
+                                    } else if (level === 'kasubbag') {
+                                        badgeClass = 'bg-orange text-white';
+                                        text = 'Diproses oleh Kasubbag';
+                                    } else {
+                                        badgeClass = 'bg-warning text-dark';
+                                        text = 'Sedang Diproses';
+                                    }
+                                } else if (status === 'disetujui') {
+                                    badgeClass = 'bg-success';
+                                    text = 'Disetujui Final';
+                                } else if (status === 'ditolak') {
+                                    if (level === 'tu') {
+                                        badgeClass = 'bg-danger';
+                                        text = 'Ditolak oleh Admin TU';
+                                    } else if (level === 'kasubbag') {
+                                        badgeClass = 'bg-danger';
+                                        text = 'Ditolak oleh Kasubbag';
+                                    } else {
+                                        badgeClass = 'bg-danger';
+                                        text = 'Ditolak';
+                                    }
+                                } else if (status === 'selesai') {
+                                    badgeClass = 'bg-info';
+                                    text = 'Selesai';
+                                } else if (status === 'dibatalkan') {
+                                    badgeClass = 'bg-dark';
+                                    text = 'Dibatalkan';
+                                }
+                            }
+
+                            return `<span class="badge ${badgeClass} fw-bold px-2 py-2">${text}</span>`;
+                        }
+                    },
                     {
                         data: 'status_revisi',
                         render: function(data) {
@@ -347,4 +400,12 @@
         });
     </script>
 @endpush
-</document_content>
+
+@push('styles')
+    <style>
+        .bg-orange {
+            background-color: #fd7e14 !important;
+            color: white !important;
+        }
+    </style>
+    </document_content>

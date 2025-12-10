@@ -91,4 +91,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/pengajuan-cuti/{id}/tolak', [PengajuanCutiController::class, 'tolak']);
     Route::post('/pengajuan-cuti/{id}/cancel_approval', [PengajuanCutiController::class, 'cancelApproval']);
     Route::post('/pengajuan-cuti/{id}/batalkan', [PengajuanCutiController::class, 'batalkan']);
+    Route::post('/pengajuan-cuti/{id}/upload_final_pdf', [PengajuanCutiController::class, 'uploadFinalPdf']);
 });

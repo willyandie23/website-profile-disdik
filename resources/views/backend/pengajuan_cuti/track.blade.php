@@ -13,13 +13,15 @@
                         </a>
                         Track History: {{ $pengajuan->kode_pengajuan }}
                     </h4>
-                    {{-- <div>
-                        @if ($pengajuan->final_pdf)
-                            <a href="/storage/{{ $pengajuan->final_pdf }}" target="_blank" class="btn btn-success btn-sm">
-                                <i class="fas fa-file-pdf"></i> Download Surat Cuti
-                            </a>
+                    <div>
+                        @if (auth()->user()->hasRole('kassubag'))
+                            @if ($pengajuan->final_pdf)
+                                <a href="/storage/{{ $pengajuan->final_pdf }}" target="_blank" class="btn btn-success btn-sm">
+                                    <i class="fas fa-file-pdf"></i> Download Surat Cuti
+                                </a>
+                            @endif
                         @endif
-                    </div> --}}
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -33,12 +35,14 @@
                             $isAdminTu =
                                 auth()->user()->hasRole('admin') &&
                                 $pengajuan->level_approval === 'tu' &&
-                                in_array($pengajuan->status, ['diajukan', 'sedang_diproses']);
+                                in_array($pengajuan->status, ['diajukan', 'sedang_diproses']) &&
+                                $pengajuan->status_revisi !== 'perlu_revisi';
 
                             $isKasubbag =
                                 auth()->user()->hasRole('kassubag') &&
                                 $pengajuan->level_approval === 'kasubbag' &&
-                                $pengajuan->status === 'sedang_diproses';
+                                $pengajuan->status === 'sedang_diproses' &&
+                                $pengajuan->status_revisi !== 'perlu_revisi';
 
                             // Cek apakah admin TU sudah approve dan bisa cancel
                             $adminTuHasApproved =
@@ -51,9 +55,52 @@
                                 auth()->user()->hasRole('kassubag') &&
                                 in_array($pengajuan->status, ['disetujui', 'ditolak']);
 
+                            // Cek apakah admin bisa upload final_pdf
+                            $canUploadFinalPdf =
+                                auth()->user()->hasRole('admin') &&
+                                $pengajuan->approved_by_tu &&
+                                $pengajuan->approved_at_tu &&
+                                $pengajuan->approved_by_kasubbag &&
+                                $pengajuan->approved_at_kasubbag;
+
                             $canProcess = $isAdminTu || $isKasubbag;
                             $canCancel = $adminTuHasApproved || $kasubbagHasProcessed;
                         @endphp
+
+                        {{-- PANEL UPLOAD FINAL PDF (Khusus Admin setelah semua approved) --}}
+                        @if ($canUploadFinalPdf)
+                            <div class="action-panel bg-info-subtle border border-info rounded-3 p-4 shadow-sm mb-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-info">
+                                            <i class="fas fa-upload me-2"></i>
+                                            Upload Surat Cuti Final
+                                        </h6>
+                                        <small class="text-muted">
+                                            Pengajuan telah disetujui oleh semua pihak. Silakan upload surat cuti final.
+                                        </small>
+                                        @if ($pengajuan->final_pdf)
+                                            <div class="mt-2">
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle"></i> Surat sudah diupload
+                                                </span>
+                                                <a href="/storage/{{ $pengajuan->final_pdf }}" target="_blank"
+                                                    class="btn btn-sm btn-outline-success ms-2">
+                                                    <i class="fas fa-eye"></i> Lihat Surat
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#modalUploadFinalPdf">
+                                            <i class="fas fa-file-upload me-1"></i>
+                                            {{ $pengajuan->final_pdf ? 'Update' : 'Upload' }} Surat
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
 
                         {{-- PANEL AKSI NORMAL (Belum diproses oleh user yang login) --}}
                         @if ($canProcess)
@@ -277,6 +324,12 @@
                                         <td>{{ $pengajuan->approved_at_kasubbag->format('d/m/Y H:i') }}</td>
                                     </tr>
                                 @endif
+                                @if ($pengajuan->nomor_surat)
+                                    <tr>
+                                        <th>Nomor Surat</th>
+                                        <td><strong>{{ $pengajuan->nomor_surat }}</strong></td>
+                                    </tr>
+                                @endif
                             </table>
                         </div>
                     </div>
@@ -284,7 +337,7 @@
                     <!-- Catatan Revisi (jika ada) -->
                     @if ($pengajuan->status_revisi === 'perlu_revisi' && $pengajuan->catatan_revisi)
                         <div class="alert alert-warning border-start border-warning border-5">
-                            <h5><i class="fas fa-exclamation-triangle"></i> Perlu Revisi</h5>
+                            <h5><i class="fas fa-exclamation-triangle"></i> Sedang Revisi</h5>
                             <p class="mb-0">{{ $pengajuan->catatan_revisi }}</p>
                             <small class="text-muted d-block mt-2">
                                 Oleh: {{ $pengajuan->revisi_oleh }}
@@ -306,6 +359,39 @@
                                 <span class="badge bg-success">
                                     <i class="fas fa-hourglass-half"></i> Menunggu verifikasi ulang
                                 </span>
+                            </div>
+                        </div>
+                    @elseif($pengajuan->status_revisi === 'perlu_revisi' && $pengajuan->tipe_berkas_revisi)
+                        <div class="alert alert-warning border-start border-warning border-5 shadow-sm mb-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
+                                <div>
+                                    <h5 class="alert-heading fw-bold">
+                                        Perlu Revisi Berkas
+                                    </h5>
+                                    <p class="mb-2">{{ $pengajuan->catatan_revisi }}</p>
+
+                                    <div class="mt-3">
+                                        <strong class="text-danger">Berkas yang harus diperbaiki:</strong>
+                                        <ul class="list-unstyled mb-0 mt-2">
+                                            @foreach (json_decode($pengajuan->tipe_berkas_revisi, true) as $tipe)
+                                                <li class="mb-2">
+                                                    <span class="badge bg-danger me-2">
+                                                        <i class="fas fa-times-circle"></i>
+                                                    </span>
+                                                    <strong>{{ ucwords(str_replace('_', ' ', $tipe)) }}</strong>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+
+                                    <hr class="my-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user-clock"></i>
+                                        Diminta oleh: <strong>{{ $pengajuan->revisi_oleh }}</strong>
+                                        pada {{ $pengajuan->updated_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     @endif
@@ -384,11 +470,6 @@
                                     {{ $riwayat->tanggal->locale('id')->translatedFormat('d F Y') }}
                                 </div>
 
-                                <!-- Dot Icon -->
-                                {{-- <div class="timeline-dot" style="background: {{ $item['bg'] }} !important;">
-                                    <i class="fas {{ $item['icon'] }} text-white"></i>
-                                </div> --}}
-
                                 <!-- Content Card -->
                                 <div class="timeline-content">
                                     <div class="timeline-card bg-white shadow-sm border">
@@ -426,7 +507,6 @@
             </div>
         </div>
     </div>
-    </div>
 
     <!-- Modal Lihat Berkas -->
     <div class="modal fade" id="modalBerkas" tabindex="-1">
@@ -444,7 +524,7 @@
                                     <div class="card border-primary h-100">
                                         <div class="card-body text-center p-3">
                                             <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
-                                            <p class="small text-muted mb-1">{{ $berkas->nama_asli }}</p>
+                                            <p class="small text-muted mb-1">{{ $berkas->tipe_berkas }}</p>
                                             <a href="/storage/{{ $berkas->path }}" target="_blank"
                                                 class="btn btn-outline-primary btn-sm">
                                                 <i class="fas fa-eye"></i> Lihat
@@ -466,26 +546,131 @@
         </div>
     </div>
 
-    <!-- Modal Minta Revisi (DIGUNAKAN BERSAMA oleh Admin TU & Kasubbag) -->
+    <!-- Modal Minta Revisi (Admin TU & Kasubbag) -->
     <div class="modal fade" id="modalRevisi" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title text-light"><i class="fas fa-edit"></i> Minta Revisi Berkas</h5>
+                    <h5 class="modal-title text-light">
+                        <i class="fas fa-edit"></i> Minta Revisi Berkas
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="formMintaRevisi">
                     @csrf
                     <div class="modal-body">
+
+                        <!-- Checkbox Tipe Berkas yang Harus Direvisi -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-danger">
+                                <i class="fas fa-exclamation-triangle"></i> Pilih Berkas yang Harus Direvisi <span
+                                    class="text-danger">*</span>
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="tipe_berkas_revisi[]"
+                                            value="lampiran_tambahan" id="rev_lampiran">
+                                        <label class="form-check-label fw-semibold" for="rev_lampiran">
+                                            Lampiran Tambahan
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="tipe_berkas_revisi[]"
+                                            value="surat_dokter" id="rev_dokter">
+                                        <label class="form-check-label fw-semibold" for="rev_dokter">
+                                            Surat Dokter
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="tipe_berkas_revisi[]"
+                                            value="lampiran_cuti" id="rev_lampiran_cuti">
+                                        <label class="form-check-label fw-semibold" for="rev_lampiran_cuti">
+                                            Lampiran Cuti
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Centang semua yang perlu diperbaiki</small>
+                        </div>
+
+                        <hr>
+
+                        <!-- Catatan Revisi -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">Catatan Revisi <span class="text-danger">*</span></label>
-                            <textarea name="catatan_revisi" class="form-control" rows="5" required
-                                placeholder="Tulis dengan jelas bagian mana yang perlu diperbaiki..."></textarea>
+                            <textarea name="catatan_revisi" class="form-control" rows="6" required
+                                placeholder="Jelaskan dengan jelas apa yang perlu diperbaiki pada berkas yang dipilih..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-warning">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning fw-bold">
                             <i class="fas fa-paper-plane"></i> Kirim Permintaan Revisi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Upload Final PDF (Khusus Admin) -->
+    <div class="modal fade" id="modalUploadFinalPdf" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="fas fa-file-upload"></i> Upload Surat Cuti Final</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formUploadFinalPdf" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Upload surat cuti yang sudah ditandatangani oleh pejabat
+                            berwenang
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nomor Surat <span class="text-danger">*</span></label>
+                            <input type="text" name="nomor_surat" class="form-control"
+                                value="{{ $pengajuan->nomor_surat }}" placeholder="Contoh: 123/SK/BKPSDM/2024" required>
+                            <small class="text-muted">Format: Nomor/Kode/Instansi/Tahun</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">File Surat Cuti (PDF) <span
+                                    class="text-danger">*</span></label>
+                            <input type="file" name="final_pdf" class="form-control" accept=".pdf"
+                                {{ $pengajuan->final_pdf ? '' : 'required' }}>
+                            <small class="text-muted">Format: PDF, Maksimal 5MB</small>
+
+                            @if ($pengajuan->final_pdf)
+                                <div class="mt-2">
+                                    <small class="text-success">
+                                        <i class="fas fa-check-circle"></i> File saat ini:
+                                        <a href="/storage/{{ $pengajuan->final_pdf }}" target="_blank">
+                                            Lihat surat yang sudah diupload
+                                        </a>
+                                    </small>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Perhatian:</strong> Pastikan nomor surat dan file PDF sudah benar sebelum upload.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-upload"></i> Upload Surat
                         </button>
                     </div>
                 </form>
@@ -505,6 +690,7 @@
                 $(this).find('textarea[name="catatan_revisi"]').val(catatan);
             });
         });
+
         // 1. Teruskan (Admin TU / Kasubbag)
         function teruskan(id) {
             Swal.fire({
@@ -703,6 +889,86 @@
                 }
             });
         }
+
+        // 6. Upload Final PDF (Admin)
+        document.getElementById('formUploadFinalPdf')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            // Validasi file jika diupload
+            const fileInput = this.querySelector('input[name="final_pdf"]');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+
+                // Validasi tipe file
+                if (file.type !== 'application/pdf') {
+                    Swal.fire('Error!', 'File harus berformat PDF', 'error');
+                    return;
+                }
+
+                // Validasi ukuran file (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    Swal.fire('Error!', 'Ukuran file maksimal 5MB', 'error');
+                    return;
+                }
+            }
+
+            // Tutup modal terlebih dahulu
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalUploadFinalPdf'));
+            if (modal) {
+                modal.hide();
+            }
+
+            // Tampilkan konfirmasi
+            setTimeout(() => {
+                Swal.fire({
+                    title: 'Upload Surat Final?',
+                    text: 'Pastikan nomor surat dan file PDF sudah benar',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#17a2b8',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Upload!',
+                    cancelButtonText: 'Batal'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        // Tampilkan loading
+                        Swal.fire({
+                            title: 'Mengupload...',
+                            html: 'Mohon tunggu sebentar',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        fetch(`/api/pengajuan-cuti/{{ $pengajuan->id }}/upload_final_pdf`, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: formData
+                            })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire('Berhasil!', data.message, 'success')
+                                        .then(() => location.reload());
+                                } else {
+                                    Swal.fire('Gagal!', data.message, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire('Error!', 'Terjadi kesalahan pada server', 'error');
+                            });
+                    } else {
+                        // Jika dibatalkan, buka kembali modal
+                        modal.show();
+                    }
+                });
+            }, 300);
+        });
     </script>
 @endpush
 
@@ -771,35 +1037,6 @@
             top: 15px;
         }
 
-        /* Dot Icon */
-        .timeline-dot {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background: #7c3aed;
-            border-radius: 50%;
-            border: 5px solid white;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .timeline-left .timeline-dot {
-            right: -65px;
-            top: 10px;
-        }
-
-        .timeline-right .timeline-dot {
-            left: -65px;
-            top: 10px;
-        }
-
-        .timeline-dot i {
-            font-size: 1.2rem;
-        }
-
         /* Content Card */
         .timeline-content {
             position: relative;
@@ -854,13 +1091,6 @@
                 padding: 6px 15px;
             }
 
-            .timeline-dot {
-                left: 5px !important;
-                right: auto !important;
-                width: 45px;
-                height: 45px;
-            }
-
             .timeline-card {
                 margin-left: 0 !important;
                 margin-right: 0 !important;
@@ -881,16 +1111,6 @@
             .timeline-badge {
                 font-size: 0.7rem;
                 padding: 5px 12px;
-            }
-
-            .timeline-dot {
-                width: 40px;
-                height: 40px;
-                left: 0 !important;
-            }
-
-            .timeline-dot i {
-                font-size: 1rem;
             }
 
             .timeline-card {

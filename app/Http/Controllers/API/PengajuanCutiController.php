@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Models\PengajuanCuti;
+use App\Models\RiwayatStatus;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -112,14 +113,11 @@ class PengajuanCutiController extends Controller
             // KASUBBAG: Setujui Final
             elseif ($user->hasRole('kassubag') && $pengajuan->level_approval === 'kasubbag') {
 
-                // Generate PDF Surat Cuti (sesuaikan dengan sistem Anda)
-                $pdfPath = $this->generateSuratCuti($pengajuan);
 
                 $pengajuan->update([
                     'status' => 'disetujui',
                     'approved_by_kasubbag' => $user->id,
                     'approved_at_kasubbag' => now(),
-                    'final_pdf' => $pdfPath,
                 ]);
 
                 $pengajuan->riwayatStatus()->create([
@@ -130,7 +128,7 @@ class PengajuanCutiController extends Controller
                     'tanggal' => now()
                 ]);
 
-                $message = 'Pengajuan berhasil disetujui. Surat cuti telah digenerate.';
+                $message = 'Pengajuan berhasil disetujui.';
             } else {
                 return response()->json([
                     'success' => false,
@@ -159,36 +157,39 @@ class PengajuanCutiController extends Controller
     public function mintaRevisi(Request $request, $id)
     {
         $request->validate([
-            'catatan_revisi' => 'required|string|min:10'
+            'catatan_revisi' => 'required|string|min:10',
+            'tipe_berkas_revisi' => 'required|array|min:1',
+            'tipe_berkas_revisi.*' => 'in:lampiran_tambahan,surat_dokter,lampiran_cuti'
+        ], [
+            'tipe_berkas_revisi.required' => 'Pilih minimal satu jenis berkas yang harus direvisi.',
+            'tipe_berkas_revisi.min' => 'Pilih minimal satu jenis berkas.',
         ]);
 
         try {
             $pengajuan = PengajuanCuti::findOrFail($id);
             $user = auth()->user();
 
-            // Validasi akses
             if (!$user->hasAnyRole(['admin', 'kassubag'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda tidak memiliki akses'
-                ], 403);
+                return response()->json(['success' => false, 'message' => 'Akses ditolak'], 403);
             }
 
             DB::beginTransaction();
 
             $pengajuan->update([
-                'status_revisi' => 'perlu_revisi',
-                'catatan_revisi' => $request->catatan_revisi,
-                'revisi_oleh' => $user->name,
-                'revisi_at' => now(),
+                'status_revisi'       => 'perlu_revisi',
+                'catatan_revisi'      => $request->catatan_revisi,
+                'revisi_oleh'         => $user->name,
+                'tipe_berkas_revisi'  => $request->tipe_berkas_revisi, // simpan array → jadi JSON otomatis
+                'revisi_at'           => now(),
             ]);
 
+            // Riwayat status
             $pengajuan->riwayatStatus()->create([
-                'status_lama' => $pengajuan->status,
+                'status_lama' => $pengajuan->getOriginal('status'),
                 'status_baru' => $pengajuan->status,
-                'oleh' => $user->name,
-                'catatan' => 'Diminta revisi: ' . $request->catatan_revisi,
-                'tanggal' => now()
+                'oleh'        => $user->name,
+                'catatan'     => 'Diminta revisi berkas: ' . implode(', ', $request->tipe_berkas_revisi),
+                'tanggal'     => now()
             ]);
 
             DB::commit();
@@ -201,7 +202,7 @@ class PengajuanCutiController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Gagal: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -393,17 +394,78 @@ class PengajuanCutiController extends Controller
         }
     }
 
-    private function generateSuratCuti($pengajuan)
+    public function uploadFinalPdf(Request $request, $id)
     {
-        // Implementasi generate PDF sesuai sistem Anda
-        // Contoh menggunakan DomPDF atau TCPDF
+        try {
+            $pengajuan = PengajuanCuti::findOrFail($id);
 
-        // $pdf = PDF::loadView('pdf.surat-cuti', compact('pengajuan'));
-        // $filename = 'surat-cuti-' . $pengajuan->kode_pengajuan . '.pdf';
-        // $path = 'surat-cuti/' . $filename;
-        // Storage::put($path, $pdf->output());
-        // return $path;
+            // Validasi role admin
+            if (!auth()->user()->hasRole('admin')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized. Hanya admin yang dapat upload surat final.'
+                ], 403);
+            }
 
-        return 'surat-cuti/dummy-' . time() . '.pdf';
+            // Validasi kondisi pengajuan
+            if (
+                !$pengajuan->approved_by_tu || !$pengajuan->approved_at_tu ||
+                !$pengajuan->approved_by_kasubbag || !$pengajuan->approved_at_kasubbag
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pengajuan belum disetujui oleh semua pihak.'
+                ], 400);
+            }
+
+            $request->validate([
+                'nomor_surat' => 'required|string|max:100',
+                'final_pdf' => 'nullable|file|mimes:pdf|max:5120' // 5MB
+            ]);
+
+            // Update nomor surat
+            $pengajuan->nomor_surat = $request->nomor_surat;
+
+            // Upload file jika ada
+            if ($request->hasFile('final_pdf')) {
+                // Hapus file lama jika ada
+                if ($pengajuan->final_pdf && Storage::exists('public/' . $pengajuan->final_pdf)) {
+                    Storage::delete('public/' . $pengajuan->final_pdf);
+                }
+
+                // Upload file baru
+                $file = $request->file('final_pdf');
+                $filename = 'surat_cuti_' . $pengajuan->kode_pengajuan . '_' . time() . '.pdf';
+                $path = $file->storeAs('surat_cuti', $filename, 'public');
+
+                $pengajuan->final_pdf = $path;
+            }
+
+            $pengajuan->save();
+
+            // Tambah riwayat status
+            RiwayatStatus::create([
+                'pengajuan_cuti_id' => $pengajuan->id,
+                'status_lama' => $pengajuan->status,
+                'status_baru' => $pengajuan->status,
+                'tanggal' => now(),
+                'oleh' => auth()->user()->name,
+                'catatan' => 'Surat cuti final telah diupload dengan nomor: ' . $request->nomor_surat
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Surat cuti final berhasil diupload!',
+                'data' => [
+                    'nomor_surat' => $pengajuan->nomor_surat,
+                    'final_pdf' => $pengajuan->final_pdf
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
