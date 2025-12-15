@@ -79,9 +79,9 @@
         <div class="footer-wrapper container-fluid">
             <div class="row">
                 <div class="col-sm my-1">
-                    <p class="m-0">Website Profile Disbudporapar Dibuat dengan ♥ oleh<a
+                    <p class="m-0">Website Profile Dinas Pendidikan Dibuat dengan ♥ oleh<a
                             href="https://diskominfopersantik.katingankab.go.id/" target="_blank"> <b>Diskominfostandi
-                                Kab. Katingan</b></a> Dikelola oleh <a href=""><b>Disbudporapar Kab.
+                                Kab. Katingan</b></a> Dikelola oleh <a href=""><b>Dinas Pendidikan Kab.
                                 Katingan</b></a>.</p>
                 </div>
             </div>

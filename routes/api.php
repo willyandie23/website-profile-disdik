@@ -35,9 +35,9 @@ Route::get('/fields', [FieldController::class, 'index']);
 Route::get('/links', [LinkController::class, 'index']);
 
 Route::get('/jenis-cuti', [JenisCutiController::class, 'index']);
-Route::get('/pengajuan-cuti', [PengajuanCutiController::class, 'index']);        // GET    api/pengajuan-cuti
-Route::get('/pengajuan-cuti/{id}', [PengajuanCutiController::class, 'show']);    // GET    api/pengajuan-cuti/1
-Route::post('/pengajuan-cuti', [PengajuanCutiController::class, 'store']);       // POST   api/pengajuan-cuti
+Route::get('/pengajuan-cuti', [PengajuanCutiController::class, 'index']);
+Route::get('/pengajuan-cuti/{id}', [PengajuanCutiController::class, 'show']);
+Route::post('/pengajuan-cuti', [PengajuanCutiController::class, 'store']);
 
 
 Route::middleware('auth:api')->group(function () {
